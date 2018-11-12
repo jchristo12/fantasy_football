@@ -136,7 +136,7 @@ done = False
 
 #loop thru to get all of the players available
 #while(not done):
-query_url = base_query_url + leagueID + '/players;status=A;start=%s,count=25' %start
+query_url = base_query_url + leagueID + '/players;status=A;sort=PTS;start=%s,count=25' %start
 
 r = s.get(query_url, params={'format': 'json'})
 output = r.json()
