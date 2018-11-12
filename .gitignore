@@ -154,5 +154,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# Other files
+# specific files
 yahoo-api-key-secret.json
