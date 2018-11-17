@@ -101,8 +101,7 @@ webbrowser.open(url)
 code = input('Enter code: ')
 #create credentials item
 start_time = time.time()
-
-#create dictionary to hold credentials
+#create dictionary to hold credentials and store beginning time
 credentials = {'token_time': start_time}
 
 #create parameters
@@ -131,6 +130,7 @@ teamID = '.t.2'
 #initialize everything
 last_first_names = []
 full_names = []
+player_key = []
 start = 1
 done = False
 
@@ -145,22 +145,29 @@ output = output['league']
 output = output[1]
 output = output['players']
 count = output['count']
-player_keys = list(output.keys())
-player_keys = player_keys[0:len(player_keys)-1]
+player_num = list(output.keys())
+player_num = player_num[0:len(player_num)-1]
 #grab the names for each of the players in this batch of players
-for i in player_keys:
+for i in player_num:
     output1 = output[i]
-    output2 = output1['player']
-    output3 = output2[0]
-    output4 = output3[2]
-    output5 = output4['name']
-    first = output5['first']
-    last = output5['last']
-    full = output5['full']
+    output1 = output1['player']
+    output1 = output1[0]
+    #get player name
+    output_name = output1[2]
+    output_name = output_name['name']
+    first = output_name['first']
+    last = output_name['last']
+    full = output_name['full']
     last_first = last + ', ' + first
-    #add names to lists
+    #get player key
+    output_key = list(output1[0].values())[0]
+    #add items to lists
     last_first_names.append(last_first)
     full_names.append(full)
+    player_key.append(output_key)
+
+    
+    
     #stopping rule
 #    start += 25
 #    if count < 25:
