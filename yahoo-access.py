@@ -121,7 +121,7 @@ s = oauth.get_session(token=access_token)
 
 
 # =============================================================================
-# Build a query
+# Build available players query
 # =============================================================================
 base_query_url = oauth.base_url + 'fantasy/v2/league/'
 leagueID = 'nfl.l.778518'
@@ -131,12 +131,12 @@ teamID = '.t.2'
 last_first_names = []
 full_names = []
 player_key = []
-start = 1
+start = 26
 done = False
 
 #loop thru to get all of the players available
 #while(not done):
-query_url = base_query_url + leagueID + '/players;status=A;sort=PTS;start=%s,count=25' %start
+query_url = base_query_url + leagueID + '/players;status=A;sort=PTS;start=%s,count=100' %start
 
 r = s.get(query_url, params={'format': 'json'})
 output = r.json()
@@ -149,6 +149,7 @@ player_num = list(output.keys())
 player_num = player_num[0:len(player_num)-1]
 #grab the names for each of the players in this batch of players
 for i in player_num:
+    #get to player details
     output1 = output[i]
     output1 = output1['player']
     output1 = output1[0]
