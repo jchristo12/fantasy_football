@@ -131,12 +131,12 @@ teamID = '.t.2'
 last_first_names = []
 full_names = []
 player_key = []
-start = 26
+start = 1
 done = False
 
 #loop thru to get all of the players available
 #while(not done):
-query_url = base_query_url + leagueID + '/players;status=A;sort=PTS;start=%s,count=100' %start
+query_url = base_query_url + leagueID + '/players;status=A;sort=PTS;start=%s,count=25' %start
 
 r = s.get(query_url, params={'format': 'json'})
 output = r.json()
