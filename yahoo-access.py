@@ -130,17 +130,17 @@ def query_setup():
 	access_token = create_access_token(oauth)
 	s = oauth.get_session(token=access_token)
 	#return session
-	return s, oauth
+	return s, oauth.base_url
 
 
 # =============================================================================
 # Build available players query
 # =============================================================================
 #create the authenticated session
-s, oauth = query_setup()
+s, base_url = query_setup()
 
 #create the basic components of the query
-base_query_url = oauth.base_url + 'fantasy/v2/league/'
+base_query_url = base_url + 'fantasy/v2/league/'
 leagueID = 'nfl.l.778518'
 teamID = '.t.2'
 
