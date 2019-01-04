@@ -214,6 +214,35 @@ def team_players_query():
 
     #get the json data
     r = s.get(query_url, params={'format': 'json'})
+    output = r.json()
+    output = output['fantasy_content']['team'][1]['roster']['0']['players']
+    player_num = list(output.keys())
+    player_num = player_num[0:len(player_num)-1]
+    #loop thru all of the players and extract the necessary info
+    for i in player_num:
+        result = output[i]
+        result = result['player'][0]
+        #store the player key
+        player_k = result[0]['player_key']
+        #store player names
+        output_name = result[2]['name']
+        f_name = output_name['first']
+        l_name = output_name['last']
+        full = output_name['full']
+        #build formatted name
+        last_first = l_name + ', ' + f_name
+        #add to lists
+        full_names.append(full)
+        last_first_names.append(last_first)
+        player_key.append(player_k)
+        
+    #stop the timer
+    calc_end = time.time()
+    #print the calculation time
+    print('Process complete')
+    print('Calculation time: {0:0.2f} seconds'.format((calc_end-calc_start)))
+    #return full names and player keys
+    return full_names, player_key
 
 # =============================================================================
 # Run project
