@@ -133,68 +133,98 @@ def query_setup():
 	return s, oauth.base_url
 
 
+def available_players_query():
+	"""
+	API query to return all available players, ssorted by number of fantasy points\n
+	Returns two lists: players' full names and their associated Yahoo API player key
+	"""
+	#start the calculation timer
+	calc_start = time.time()
+
+	#initialize everything
+	last_first_names = []
+	full_names = []
+	player_key = []
+	start = 1
+	done = False
+
+	#this is where the data is actually created
+	#loop thru to get all of the players available
+	while(not done):
+		query_url = base_query_url + 'league/' + leagueID + '/players;status=A;sort=PTS;start=%s;count=25' %start
+		
+		r = s.get(query_url, params={'format': 'json'})
+		output = r.json()
+		output = output['fantasy_content']
+		output = output['league']
+		output = output[1]
+		output = output['players']
+		count = output['count']
+		player_num = list(output.keys())
+		player_num = player_num[0:len(player_num)-1]
+		#grab the names for each of the players in this batch of players
+		for i in player_num:
+			#get to player details
+			output1 = output[i]
+			output1 = output1['player']
+			output1 = output1[0]
+			#get player name
+			output_name = output1[2]
+			output_name = output_name['name']
+			first = output_name['first']
+			last = output_name['last']
+			full = output_name['full']
+			last_first = last + ', ' + first
+			#get player key
+			output_key = list(output1[0].values())[0]
+			#add items to lists
+			last_first_names.append(last_first)
+			full_names.append(full)
+			player_key.append(output_key)
+		
+		#stopping rule: if the number of players on the page is less than 25, then stop
+		start += 25
+		if count < 25:
+			done = True
+
+	#stop the timer
+	calc_end = time.time()
+	#print the calculation time
+	print('Process complete')
+	print('Calculation time: {0:0.2f} seconds'.format((calc_end-calc_start)))
+	#return the players name and player key lists
+	return full_names, player_key
+
+
+def team_players_query():
+    """
+    Finds the players of a given team\n
+    Returns two lists: one with the players' full name and the other the Yahoo API player key value
+    """
+    #start the calculation timer
+    calc_start = time.time()
+
+    #initialize everything
+    last_first_names = []
+    full_names = []
+    player_key = []
+    
+    #build the query URL
+    query_url = base_query_url + 'team/' + leagueID + teamID + '/roster'
+
+    #get the json data
+    r = s.get(query_url, params={'format': 'json'})
+
 # =============================================================================
-# Build available players query
+# Run project
 # =============================================================================
+#if __name__ == '__main__':
 #create the authenticated session
 s, base_url = query_setup()
 
 #create the basic components of the query
-base_query_url = base_url + 'fantasy/v2/league/'
+base_query_url = base_url + 'fantasy/v2/'
 leagueID = 'nfl.l.778518'
 teamID = '.t.2'
 
-#start the calculation timer
-calc_start = time.time()
-
-#initialize everything
-last_first_names = []
-full_names = []
-player_key = []
-start = 1
-done = False
-
-#this is where the data is actually created
-#loop thru to get all of the players available
-while(not done):
-    query_url = base_query_url + leagueID + '/players;status=A;sort=PTS;start=%s;count=25' %start
-    
-    r = s.get(query_url, params={'format': 'json'})
-    output = r.json()
-    output = output['fantasy_content']
-    output = output['league']
-    output = output[1]
-    output = output['players']
-    count = output['count']
-    player_num = list(output.keys())
-    player_num = player_num[0:len(player_num)-1]
-    #grab the names for each of the players in this batch of players
-    for i in player_num:
-        #get to player details
-        output1 = output[i]
-        output1 = output1['player']
-        output1 = output1[0]
-        #get player name
-        output_name = output1[2]
-        output_name = output_name['name']
-        first = output_name['first']
-        last = output_name['last']
-        full = output_name['full']
-        last_first = last + ', ' + first
-        #get player key
-        output_key = list(output1[0].values())[0]
-        #add items to lists
-        last_first_names.append(last_first)
-        full_names.append(full)
-        player_key.append(output_key)
-    
-    #stopping rule: if the number of players on the page is less than 25, then stop
-    start += 25
-    if count < 25:
-        done = True
-
-#stop the timer
-calc_end = time.time()
-#print the calculation time
-print('Process complete')
-print('Calculation time: {0:0.2f} seconds'.format((calc_end-calc_start)))
+full_names, player_key = available_players_query()
