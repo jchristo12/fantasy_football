@@ -244,6 +244,7 @@ def team_players_query():
     #return full names and player keys
     return full_names, player_key
 
+
 # =============================================================================
 # Run project
 # =============================================================================
@@ -256,4 +257,11 @@ base_query_url = base_url + 'fantasy/v2/'
 leagueID = 'nfl.l.778518'
 teamID = '.t.2'
 
-full_names, player_key = available_players_query()
+#collect all available players
+avail_full_names, avail_player_key = available_players_query()
+#collect players on roster
+team_full_names, team_player_key = team_players_query()
+
+#make data frames out of the collected lists
+df_avail = pd.DataFrame({'name': avail_full_names, 'key': avail_player_key})
+df_roster = pd.DataFrame({'name': team_full_names, 'key': team_player_key})
