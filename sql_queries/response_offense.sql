@@ -1,4 +1,5 @@
-select GAME.seas, GAME.wk, PLAYER.player, PLAYER.pos1, OFFENSE.py, OFFENSE.ints, OFFENSE.tdp,
+select concat(GAME.seas, "&", GAME.wk, "&", PLAYER.player) as pk,
+	GAME.seas, GAME.wk, PLAYER.player, PLAYER.pos1, OFFENSE.py, OFFENSE.ints, OFFENSE.tdp,
 	OFFENSE.ry, OFFENSE.tdr, OFFENSE.recy, OFFENSE.tdrec, OFFENSE.rety, OFFENSE.tdret,
     OFFENSE.fuml, OFFENSE.conv
 from OFFENSE

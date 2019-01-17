@@ -1,4 +1,5 @@
-select GAME.seas, GAME.wk, DEFENSE.team,
+select concat(GAME.seas, "&", GAME.wk, "&", DEFENSE.team) as pk,
+	GAME.seas, GAME.wk, DEFENSE.team,
 	sum(DEFENSE.sck) as sck, sum(DEFENSE.saf) as saf, sum(DEFENSE.blk) as blk, 
     sum(DEFENSE.ints) as ints, sum(DEFENSE.frcv) as frcv, sum(DEFENSE.tdd) as tdd,
     sum(DEFENSE.tdret) as tdret,
