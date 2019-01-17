@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import numpy as np
 
@@ -24,6 +23,8 @@ r_defense = r_defense.astype({'pk': str,
                           'seas': 'category',
                           'wk': 'category',
                           'team': 'category'})
+#parse out pts allowed column
+
 
 #kicker
 r_kicker = r_kicker.astype({'pk': str,
@@ -43,4 +44,17 @@ r_sacks = r_sacks.astype({'pk': str,
 r_sacks.rename(columns={'qb': 'player'}, inplace=True)
 
 #combine offense and sacks (for QBs)
-r_offense_test = r_offense.join(r_sacks, on='pk', how='left')
+#r_offense_test = r_offense.join(r_sacks, on='pk', how='left')
+
+# =============================================================================
+# Convert data to fantasy pts
+# =============================================================================
+#offense
+pts_off = {'py': 1/25, 'ints': -2, 'sack': -0.25, 'tdp': 4, 'ry': 1/10, 'tdr': 6, 'recy': 1/10, 'tdrec': 6, 'rety': 1/35,
+               'tdret': 6, 'fuml': -2, 'conv': 2}
+#defense
+pts_def = {'sck': 1, 'saf': 4, 'blk': 3, 'ints': 2, 'frcv': 2, 'tdd': 6, 'tdret': 6, 'allow_0': 10, 'allow_1-6': 7,
+           'allow_7-13': 4, 'allow_14-20': 1, 'allow_21-27': 0, 'allow_28-34': -1, 'allow_35+': -4}
+#kicker
+pts_kicker_g = {'0-19': 3, '20-29': 3, '30-39': 3, '40-49': 4, '50+': 5, 'XP': 1}
+pts_kicker_m = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 'XP': -2}
