@@ -40,19 +40,21 @@ r_defense = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_fo
 r_kicker = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/response_kickers.csv')
 r_sacks = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/response_sacks_on_qb.csv')
 
-#convert data types in columns
+#convert data types in columns and set pk as index
 #offense
 r_offense = r_offense.astype({'pk': str,
                           'seas': 'category',
                           'wk': 'category',
                           'player': str,
                           'pos1': 'category'})
-
+r_offense = r_offense.set_index('pk')
+    
 #defense
 r_defense = r_defense.astype({'pk': str,
                           'seas': 'category',
                           'wk': 'category',
                           'team': 'category'})
+r_defense = r_defense.set_index('pk')
 #parse out pts allowed column
 
 
@@ -62,6 +64,7 @@ r_kicker = r_kicker.astype({'pk': str,
                           'wk': 'category',
                           'fkicker': str,
                           'good': 'category'})
+r_kicker = r_kicker.set_index('pk')
 #change column name of fkicker
 r_kicker.rename(columns={'fkicker': 'player'}, inplace=True)
 
@@ -70,11 +73,14 @@ r_sacks = r_sacks.astype({'pk': str,
                           'seas': 'category',
                           'wk': 'category',
                           'qb': str})
+r_sacks = r_sacks.set_index('pk')
 #rename qb to player
 r_sacks.rename(columns={'qb': 'player'}, inplace=True)
 
 #combine offense and sacks (for QBs)
-#r_offense_test = r_offense.join(r_sacks, on='pk', how='left')
+r_offense = r_offense.join(r_sacks.tot_sack, how='left')
+#fill NaNs with zeros (they are players that can't be sacked)
+r_offense.tot_sack.fillna(0, inplace=True)
 
 # =============================================================================
 # Convert data to fantasy pts
@@ -88,5 +94,3 @@ pts_def = {'sck': 1, 'saf': 4, 'blk': 3, 'ints': 2, 'frcv': 2, 'tdd': 6, 'tdret'
 #kicker
 pts_kicker_g = {'0-19': 3, '20-29': 3, '30-39': 3, '40-49': 4, '50+': 5, 'XP': 1}
 pts_kicker_m = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 'XP': -2}
-
-x = stats_to_pts(r_offense, pts_off, 5)
