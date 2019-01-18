@@ -5,12 +5,11 @@ import math
 # =============================================================================
 # Helper funtions
 # =============================================================================
-#convert stat categories to fantasy points
-def stats_to_pts(df, pts_dict, stat_col_start):
+#convert stats to fantasy points
+def stat_cycle(df, pts_dict, stat_col_start=0):
     """
-    Converts the stats of a player to the appropriate fantasy point values\n
-    Returns the original dataframe with a new column with the total fantasy points
-    """
+    Cycle through the stats columns and convert to fantasy points
+    """    
     #find the total columns with stats in it (subtract 1 for indexing)
     tot_stat_cols = len(df.columns) - 1
     
@@ -26,11 +25,46 @@ def stats_to_pts(df, pts_dict, stat_col_start):
     #merge all of the pts series together
     tot_pts = pd.concat(all_pts, axis=1)
     tot_pts = tot_pts.apply(sum, axis=1)
+    return tot_pts
+
+
+#convert stat categories to fantasy points and add to dataframe
+def stats_to_fpts(df, pts_dict, stat_col_start):
+    """
+    Converts the stats of a player to the appropriate fantasy point values\n
+    Returns the original dataframe with a new column with the total fantasy points\n
+    """
+    #cycle through columns
+    tot_pts = stat_cycle(df=df, pts_dict=pts_dict, stat_col_start=stat_col_start)
     #add fantasy points to the dataframe
     df['f_pts'] = tot_pts
     #return the original dataframe with the added fantasy points column
     return df
 
+
+#convert kicker stats to fantasy points
+def kicker_stats_to_fpts(full_df, df):
+    #score the kicks
+    good = stat_cycle(df[df.good == 1], pts_kicker_good, 1)
+    miss = stat_cycle(df[df.good == 0], pts_kicker_miss, 1)
+    k_pts = pd.concat([good, miss], axis=0)
+    k_pts.rename('f_pts_k', inplace=True)
+    k_pts = pd.DataFrame(k_pts.groupby(k_pts.index).sum())
+    
+    #score the offensive stats
+    off_pts = stat_cycle(r_kicker, pts_off, 10)
+    off_pts.rename('f_pts_o', inplace=True)
+    off_pts = pd.DataFrame(off_pts.groupby(off_pts.index).sum())
+    
+    #add the series together
+    combo = k_pts.join(off_pts, how='left')
+    tot_pts = combo.apply(sum, axis=1)
+    tot_pts.rename('f_pts', inplace=True)
+    tot_pts = pd.DataFrame(tot_pts)
+
+    #add fantasy points to the full dataframe
+    full_df = full_df.join(tot_pts, how='left')
+    return full_df
 
 # =============================================================================
 # Data initialization
@@ -72,6 +106,8 @@ r_kicker = r_kicker.astype({'pk': str,
 r_kicker = r_kicker.set_index('pk')
 #change column name of fkicker
 r_kicker.rename(columns={'fkicker': 'player'}, inplace=True)
+#merge the offense data for the kickers
+r_kicker.join(r_offense.iloc[:, 4:], how='left')
 
 #sacks
 r_sacks = r_sacks.astype({'pk': str,
@@ -89,6 +125,11 @@ r_offense.tot_sack.fillna(0, inplace=True)
 #remove sacks df
 del(r_sacks)
 
+#add offense data to kicker dataframe
+r_kicker = r_kicker.join(r_offense.iloc[:, 4:], how='left')
+k_nan_fill = r_kicker.iloc[:, 10:].fillna(0, inplace=False)
+r_kicker = pd.concat([r_kicker.iloc[:,0:10], k_nan_fill], axis=1)
+
 # =============================================================================
 # Convert data to fantasy pts
 # =============================================================================
@@ -99,9 +140,10 @@ pts_off = {'py': 1/25, 'ints': -2, 'tot_sack': -0.25, 'tdp': 4, 'ry': 1/10, 'tdr
 pts_def = {'sck': 1, 'saf': 4, 'blk': 3, 'ints': 2, 'frcv': 2, 'tdd': 6, 'tdret': 6, 'allow_0': 10, 'allow_1-6': 7,
            'allow_7-13': 4, 'allow_14-20': 1, 'allow_21-27': 0, 'allow_28-34': -1, 'allow_35+': -4}
 #kicker
-pts_kicker_g = {'0-19': 3, '20-29': 3, '30-39': 3, '40-49': 4, '50+': 5, 'XP': 1}
-pts_kicker_m = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 'XP': -2}
+pts_kicker_good = {'0-19': 3, '20-29': 3, '30-39': 3, '40-49': 4, '50+': 5, 'XP': 1}
+pts_kicker_miss = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 'XP': -2}
 
 #convert stats to fantasy points
-r_offense = stats_to_pts(r_offense, pts_off, 4)
-r_defense = stats_to_pts(r_defense, pts_def, 3)
+r_offense = stats_to_fpts(r_offense, pts_off, 4)
+r_defense = stats_to_fpts(r_defense, pts_def, 3)
+r_kicker = kicker_stats_to_fpts(r_kicker, r_kicker.iloc[:, 4:10])
