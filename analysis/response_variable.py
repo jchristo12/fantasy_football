@@ -1,5 +1,35 @@
 import pandas as pd
-import numpy as np
+#import numpy as np
+
+# =============================================================================
+# Helper funtions
+# =============================================================================
+#convert stat categories to fantasy points
+def stats_to_pts(df, pts_dict, stat_col_start):
+    """
+    Converts the stats of a player to the appropriate fantasy point values\n
+    Returns the original dataframe with a new column with the total fantasy points
+    """
+    #find the total columns with stats in it (add 1 for indexing)
+    tot_stat_cols = len(df.columns[stat_col_start:]) + 1
+    
+    #loop through all columns with stats in them
+    i = stat_col_start
+    all_pts = []
+    while i <= tot_stat_cols:
+        col = df.columns[i]
+        pts = df[col] * pts_dict[col]
+        all_pts.append(pts)
+        i += 1
+    
+    #merge all of the pts series together
+    tot_pts = pd.concat(all_pts, axis=1)
+    tot_pts = tot_pts.apply(sum, axis=1)
+    #add fantasy points to the dataframe
+    df['f_pts'] = tot_pts
+    #return the original dataframe with the added fantasy points column
+    return df
+
 
 # =============================================================================
 # Data initialization
@@ -58,3 +88,5 @@ pts_def = {'sck': 1, 'saf': 4, 'blk': 3, 'ints': 2, 'frcv': 2, 'tdd': 6, 'tdret'
 #kicker
 pts_kicker_g = {'0-19': 3, '20-29': 3, '30-39': 3, '40-49': 4, '50+': 5, 'XP': 1}
 pts_kicker_m = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 'XP': -2}
+
+x = stats_to_pts(r_offense, pts_off, 5)
