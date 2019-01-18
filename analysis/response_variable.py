@@ -62,9 +62,10 @@ def kicker_stats_to_fpts(full_df, df):
     tot_pts.rename('f_pts', inplace=True)
     tot_pts = pd.DataFrame(tot_pts)
 
+    #NEED TO HANDLE THE FACT THAT F_PTS IS GROUPED BY KICKER AND FULL DF IS NOT
     #add fantasy points to the full dataframe
-    full_df = full_df.join(tot_pts, how='left')
-    return full_df
+    #full_df = full_df.join(tot_pts, how='left')
+    #return full_df
 
 # =============================================================================
 # Data initialization
@@ -146,4 +147,4 @@ pts_kicker_miss = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 
 #convert stats to fantasy points
 r_offense = stats_to_fpts(r_offense, pts_off, 4)
 r_defense = stats_to_fpts(r_defense, pts_def, 3)
-r_kicker = kicker_stats_to_fpts(r_kicker, r_kicker.iloc[:, 4:10])
+r_kicker = kicker_stats_to_fpts(r_kicker, r_kicker.iloc[:, 3:10])
