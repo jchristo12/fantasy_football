@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 #import numpy as np
 
 # =============================================================================
@@ -56,7 +57,11 @@ r_defense = r_defense.astype({'pk': str,
                           'team': 'category'})
 r_defense = r_defense.set_index('pk')
 #parse out pts allowed column
-
+bins = [-math.inf, 0, 6, 13, 20, 27, 34, math.inf]
+bin_labels = ['allow_0', 'allow_1-6', 'allow_7-13', 'allow_14-20', 'allow_21-27', 'allow_28-34', 'allow_35+']
+r_defense.pts_allow = pd.cut(r_defense.pts_allow, bins=bins, right=True, labels=bin_labels, retbins=False)
+r_defense = pd.concat([r_defense, pd.get_dummies(r_defense.pts_allow)], axis=1)
+r_defense.drop('pts_allow', axis=1, inplace=True)
 
 #kicker
 r_kicker = r_kicker.astype({'pk': str,
@@ -99,3 +104,4 @@ pts_kicker_m = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 'XP
 
 #convert stats to fantasy points
 r_offense = stats_to_pts(r_offense, pts_off, 4)
+r_defense = stats_to_pts(r_defense, pts_def, 3)
