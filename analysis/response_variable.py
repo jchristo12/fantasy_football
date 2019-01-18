@@ -10,8 +10,8 @@ def stats_to_pts(df, pts_dict, stat_col_start):
     Converts the stats of a player to the appropriate fantasy point values\n
     Returns the original dataframe with a new column with the total fantasy points
     """
-    #find the total columns with stats in it (add 1 for indexing)
-    tot_stat_cols = len(df.columns[stat_col_start:]) + 1
+    #find the total columns with stats in it (subtract 1 for indexing)
+    tot_stat_cols = len(df.columns) - 1
     
     #loop through all columns with stats in them
     i = stat_col_start
@@ -81,12 +81,14 @@ r_sacks.rename(columns={'qb': 'player'}, inplace=True)
 r_offense = r_offense.join(r_sacks.tot_sack, how='left')
 #fill NaNs with zeros (they are players that can't be sacked)
 r_offense.tot_sack.fillna(0, inplace=True)
+#remove sacks df
+del(r_sacks)
 
 # =============================================================================
 # Convert data to fantasy pts
 # =============================================================================
 #offense
-pts_off = {'py': 1/25, 'ints': -2, 'sack': -0.25, 'tdp': 4, 'ry': 1/10, 'tdr': 6, 'recy': 1/10, 'tdrec': 6, 'rety': 1/35,
+pts_off = {'py': 1/25, 'ints': -2, 'tot_sack': -0.25, 'tdp': 4, 'ry': 1/10, 'tdr': 6, 'recy': 1/10, 'tdrec': 6, 'rety': 1/35,
                'tdret': 6, 'fuml': -2, 'conv': 2}
 #defense
 pts_def = {'sck': 1, 'saf': 4, 'blk': 3, 'ints': 2, 'frcv': 2, 'tdd': 6, 'tdret': 6, 'allow_0': 10, 'allow_1-6': 7,
@@ -94,3 +96,6 @@ pts_def = {'sck': 1, 'saf': 4, 'blk': 3, 'ints': 2, 'frcv': 2, 'tdd': 6, 'tdret'
 #kicker
 pts_kicker_g = {'0-19': 3, '20-29': 3, '30-39': 3, '40-49': 4, '50+': 5, 'XP': 1}
 pts_kicker_m = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 'XP': -2}
+
+#convert stats to fantasy points
+r_offense = stats_to_pts(r_offense, pts_off, 4)
