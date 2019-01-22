@@ -149,6 +149,16 @@ r_offense_final = stats_to_fpts(r_offense, pts_off, 4)
 r_defense_final = stats_to_fpts(r_defense, pts_def, 3)
 r_kicker_final = kicker_stats_to_fpts(full_df=r_kicker, df=r_kicker.iloc[:, 3:10])
 
+
+# =============================================================================
+# Add in predictor data
+# =============================================================================
+
+
+
+# =============================================================================
+# Finalize the data
+# =============================================================================
 #write to file
 r_offense_final.to_csv('C:/Users/Joe/Projects/fantasy_football/analysis/offense_final.csv')
 r_defense_final.to_csv('C:/Users/Joe/Projects/fantasy_football/analysis/defense_final.csv')
