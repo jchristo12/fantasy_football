@@ -17,5 +17,6 @@ left join GAME
 	on OFFENSE.gid = GAME.gid
 left join PLAYER
 	on OFFENSE.player = PLAYER.player
+where GAME.wk <= 16
 -- limit 10
 ;
