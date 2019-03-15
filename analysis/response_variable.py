@@ -71,10 +71,10 @@ def kicker_stats_to_fpts(full_df, df):
 # Data initialization
 # =============================================================================
 #read in response data
-r_offense = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/response_offense.csv')
-r_defense = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/response_defense.csv')
-r_kicker = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/response_kickers.csv')
-r_sacks = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/response_sacks_on_qb.csv')
+r_offense = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/sql_output/response_offense.csv')
+r_defense = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/sql_output/response_defense.csv')
+r_kicker = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/sql_output/response_kickers.csv')
+r_sacks = pd.read_csv('https://raw.githubusercontent.com/jchristo12/fantasy_football/master/data/sql_output/response_sacks_on_qb.csv')
 
 #convert data types in columns and set pk as index
 #offense
@@ -160,6 +160,6 @@ r_kicker_final = kicker_stats_to_fpts(full_df=r_kicker, df=r_kicker.iloc[:, 3:10
 # Finalize the data
 # =============================================================================
 #write to file
-r_offense_final.to_csv('C:/Users/Joe/Projects/fantasy_football/analysis/offense_final.csv')
-r_defense_final.to_csv('C:/Users/Joe/Projects/fantasy_football/analysis/defense_final.csv')
-r_kicker_final.to_csv('C:/Users/Joe/Projects/fantasy_football/analysis/kicker_final.csv')
+r_offense_final.to_csv('C:/Users/Joe/Projects/fantasy_football/data/response/offense_final.csv')
+r_defense_final.to_csv('C:/Users/Joe/Projects/fantasy_football/data/response/defense_final.csv')
+r_kicker_final.to_csv('C:/Users/Joe/Projects/fantasy_football/data/response/kicker_final.csv')
