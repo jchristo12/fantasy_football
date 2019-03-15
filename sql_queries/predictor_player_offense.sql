@@ -1,6 +1,6 @@
 select concat(OFFENSE.gid, "&", OFFENSE.player) as pk,
 	-- identifying features
-    OFFENSE.gid, GAME.seas, GAME.wk, OFFENSE.player, OFFENSE.team, PLAYER.pos1,
+    OFFENSE.gid, GAME.seas, GAME.wk, OFFENSE.player, OFFENSE.team, PLAYER.pos1, PLAYER.nflid,
     -- passing stats
     OFFENSE.pa, OFFENSE.pc, OFFENSE.py, OFFENSE.ints, OFFENSE.tdp,
     -- rushing stats
