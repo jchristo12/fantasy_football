@@ -44,6 +44,10 @@ def stats_to_fpts(df, pts_dict, stat_col_start):
 
 #convert kicker stats to fantasy points
 def kicker_stats_to_fpts(full_df, df):
+    """
+    full_df is the full kicker dataframe\n
+    df is the dataframe that the kicker stats that the kicking fantasy points are calculated off of ('good', distance, and 'XP')
+    """
     #score the kicks
     good = stat_cycle(df[df.good == 1], pts_kicker_good, 1)
     miss = stat_cycle(df[df.good == 0], pts_kicker_miss, 1)
@@ -108,7 +112,7 @@ r_kicker = r_kicker.set_index('pk')
 #change column name of fkicker
 r_kicker.rename(columns={'fkicker': 'player'}, inplace=True)
 #merge the offense data for the kickers
-r_kicker.join(r_offense.iloc[:, 4:], how='left')
+r_kicker = r_kicker.merge(r_offense.loc[:, 'py':], how='left', left_index=True, right_index=True)
 
 #sacks
 r_sacks = r_sacks.astype({'pk': str,
@@ -126,10 +130,10 @@ r_offense.tot_sack.fillna(0, inplace=True)
 #remove sacks df
 del(r_sacks)
 
-#add offense data to kicker dataframe
-r_kicker = r_kicker.join(r_offense.iloc[:, 4:], how='left')
-k_nan_fill = r_kicker.iloc[:, 10:].fillna(0, inplace=False)
-r_kicker = pd.concat([r_kicker.iloc[:,0:10], k_nan_fill], axis=1)
+#fill in offensive stats that are NaN as 0
+k_nan_fill = r_kicker.loc[:, 'py':].fillna(0, inplace=False)
+#replace NaN columns with the filled version
+r_kicker = pd.concat([r_kicker.loc[:, 'gid':'XP'], k_nan_fill], axis=1)
 
 # =============================================================================
 # Convert data to fantasy pts
@@ -145,16 +149,9 @@ pts_kicker_good = {'0-19': 3, '20-29': 3, '30-39': 3, '40-49': 4, '50+': 5, 'XP'
 pts_kicker_miss = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 'XP': -2}
 
 #convert stats to fantasy points
-r_offense_final = stats_to_fpts(r_offense, pts_off, 4)
-r_defense_final = stats_to_fpts(r_defense, pts_def, 3)
-r_kicker_final = kicker_stats_to_fpts(full_df=r_kicker, df=r_kicker.iloc[:, 3:10])
-
-
-# =============================================================================
-# Add in predictor data
-# =============================================================================
-
-
+r_offense_final = stats_to_fpts(r_offense, pts_off, 5)
+r_defense_final = stats_to_fpts(r_defense, pts_def, 4)
+r_kicker_final = kicker_stats_to_fpts(full_df=r_kicker, df=r_kicker.loc[:, 'good':'XP'])
 
 # =============================================================================
 # Finalize the data
