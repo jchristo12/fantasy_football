@@ -9,6 +9,8 @@ select concat(OFFENSE.gid, "&", OFFENSE.player) as pk,
     OFFENSE.ra, OFFENSE.sra, OFFENSE.ry, OFFENSE.tdr, OFFENSE.fuml,
     -- receiving stats
     OFFENSE.trg, OFFENSE.rec, OFFENSE.recy, OFFENSE.tdrec,
+    -- return stats
+    OFFENSE.ret, OFFENSE.rety, OFFENSE.tdret,
     -- other stats
     OFFENSE.seas, PLAYER.height, PLAYER.weight, PLAYER.dob, PLAYER.dv,
     -- rookie combine stats
