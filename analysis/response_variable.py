@@ -1,6 +1,5 @@
 import pandas as pd
 import math
-#import numpy as np
 
 # =============================================================================
 # Helper funtions
@@ -43,7 +42,7 @@ def stats_to_fpts(df, pts_dict, stat_col_start):
 
 
 #convert kicker stats to fantasy points
-def kicker_stats_to_fpts(full_df, df):
+def kicker_stats_to_fpts(full_df, df, off_stat_col_start):
     """
     full_df is the full kicker dataframe\n
     df is the dataframe that the kicker stats that the kicking fantasy points are calculated off of ('good', distance, and 'XP')
@@ -56,7 +55,7 @@ def kicker_stats_to_fpts(full_df, df):
     k_pts = pd.DataFrame(k_pts.groupby(k_pts.index).sum())
     
     #score the offensive stats
-    off_pts = stat_cycle(r_kicker, pts_off, 10)
+    off_pts = stat_cycle(r_kicker, pts_off, off_stat_col_start)
     off_pts.rename('f_pts_o', inplace=True)
     off_pts = pd.DataFrame(off_pts.groupby(off_pts.index).sum())
     
@@ -67,7 +66,7 @@ def kicker_stats_to_fpts(full_df, df):
     tot_pts = pd.DataFrame(tot_pts)
 
     #add fantasy points to the full dataframe
-    pts_df = tot_pts.join(full_df.iloc[:, 0:3], how='left')
+    pts_df = tot_pts.join(full_df.loc[:, 'gid':'player'], how='left')
     pts_df.drop_duplicates(keep='first', inplace=True)
     return pts_df
 
@@ -151,7 +150,7 @@ pts_kicker_miss = {'0-19': -3, '20-29': -2, '30-39': -2, '40-49': -1, '50+': 0, 
 #convert stats to fantasy points
 r_offense_final = stats_to_fpts(r_offense, pts_off, 5)
 r_defense_final = stats_to_fpts(r_defense, pts_def, 4)
-r_kicker_final = kicker_stats_to_fpts(full_df=r_kicker, df=r_kicker.loc[:, 'good':'XP'])
+r_kicker_final = kicker_stats_to_fpts(full_df=r_kicker, df=r_kicker.loc[:, 'good':'XP'], off_stat_col_start=11)
 
 # =============================================================================
 # Finalize the data
