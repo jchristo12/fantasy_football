@@ -15,8 +15,14 @@ page = requests.get(full_url)
 soup = BeautifulSoup(page.content, 'html.parser')
 table = soup.find_all('tbody')[0]
 
-#used for testing
-game = table.find_all('tr')[0]
+#initialize lists to store data
+away_data = []
+home_data = []
+temp_data = []
+cond_data = []
+speed_data = []
+direction_data = []
+
 #for each game, pull the teams, weather, and wind info
 for game in table.find_all('tr'):
     #data to parse
@@ -43,4 +49,18 @@ for game in table.find_all('tr'):
         speed = np.NaN
     direction = wind[wind.find(' '):].strip()
     
-    print(away, home, str(temp), cond, str(speed), direction)
+    #append all of the data to a list
+    away_data.append(away)
+    home_data.append(home)
+    temp_data.append(temp)
+    cond_data.append(cond)
+    speed_data.append(speed)
+    direction_data.append(direction)
+
+#build the dataframe
+weather_df = pd.DataFrame(data={'v': away_data,
+                                'h': home_data,
+                                'temp': temp_data,
+                                'cond': cond_data,
+                                'speed': speed_data,
+                                'direction': direction_data})
