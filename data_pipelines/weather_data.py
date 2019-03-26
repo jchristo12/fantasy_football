@@ -25,10 +25,13 @@ for game in table.find_all('tr'):
     
     #find the weather forecast and trip the whitespace
     weather = data[5].get_text().strip()
-    #parse out the temp and conditions
-    temp = int(weather[:weather.find('f')])
-    cond = 
+    #parse out the temp and conditions; error handling for domes (i.e. no temps)
+    try:
+        temp = int(weather[:weather.find('f')])
+    except:
+        temp = np.NaN
+    cond = weather[weather.find(' ') + 1:].strip()
     
     #find the wind info
     wind = data[6].get_text().strip()
-    print(away, home, temp, cond, wind)    
+    print(away, home, str(temp), cond, wind)
