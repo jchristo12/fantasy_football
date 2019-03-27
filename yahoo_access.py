@@ -209,6 +209,7 @@ def team_players_query():
     last_first_names = []
     full_names = []
     player_key = []
+    player_pos = []
     
     #build the query URL
     query_url = base_query_url + 'team/' + leagueID + teamID + '/roster'
@@ -225,6 +226,8 @@ def team_players_query():
         result = result['player'][0]
         #store the player key
         player_k = result[0]['player_key']
+        #store the player position
+        pos = result[9]['display_position']
         #store player names
         output_name = result[2]['name']
         f_name = output_name['first']
@@ -236,6 +239,7 @@ def team_players_query():
         full_names.append(full)
         last_first_names.append(last_first)
         player_key.append(player_k)
+        player_pos.append(pos)
         
     #stop the timer
     calc_end = time.time()
@@ -243,7 +247,7 @@ def team_players_query():
     print('Process complete')
     print('Calculation time for rostered players: {0:0.2f} seconds'.format((calc_end-calc_start)))
     #return full names and player keys
-    return full_names, player_key
+    return full_names, player_key, player_pos
 
 
 # =============================================================================
