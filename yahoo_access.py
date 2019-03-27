@@ -136,7 +136,7 @@ def query_setup():
 def available_players_query():
 	"""
 	API query to return all available players, ssorted by number of fantasy points\n
-	Returns two lists: players' full names and their associated Yahoo API player key
+	Returns three lists: players' full names, their associated Yahoo API player key, and their main position
 	"""
 	#start the calculation timer
 	calc_start = time.time()
@@ -145,6 +145,7 @@ def available_players_query():
 	last_first_names = []
 	full_names = []
 	player_key = []
+    player_pos = []
 	start = 1
 	done = False
 
@@ -270,7 +271,7 @@ df_roster = pd.DataFrame({'name': team_full_names, 'key': team_player_key})
 # Testing
 # =============================================================================
 #build url
-def player_stats_query(session=s, week, player_list):
+def player_stats_query(week, player_list, session=s):
     """
     Returns the player stats for the given week\n
     Takes the player list as an argument so the function can be used for available players and rostered players\n
@@ -281,11 +282,11 @@ def player_stats_query(session=s, week, player_list):
     team_list = []
     
     #cycle thru each player that is currently available
-    for p in avail_player_key:
+    for player in avail_player_key:
         #build the API url for the unique player key
-        url_player = base_query_url+'league/'+leagueID+'/players;player_keys='+p+'/stats;type=week;week='+str(week)
+        url_player = base_query_url+'league/'+leagueID+'/players;player_keys='+player+'/stats;type=week;week='+str(week)
         #convert API call to json
-        raw = session.get(url_player, params={'format': 'json'}).json()
+        raw = s.get(url_player, params={'format': 'json'}).json()
         #parse out the players details info (e.g. position, owned, etc.)
         player_details = raw['fantasy_content']['league'][1]['players']['0']['player'][0]
         #parse out position from player details
@@ -307,6 +308,8 @@ def player_stats_query(session=s, week, player_list):
             #parse out the player stats
             player_stats = raw['fantasy_content']['league'][1]['players']['0']['player'][1]['player_stats']['stats']
             #loop thru all of the various stats
-            for s in player_stats:
-                stat_dict = s['stat']
+            for stat in player_stats:
+                stat_dict = stat['stat']
                 stats_list.append(stat_dict)
+                
+        return stats_list
