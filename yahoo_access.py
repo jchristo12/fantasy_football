@@ -191,7 +191,7 @@ def available_players_query():
 	calc_end = time.time()
 	#print the calculation time
 	print('Process complete')
-	print('Calculation time: {0:0.2f} seconds'.format((calc_end-calc_start)))
+	print('Calculation time for all available players: {0:0.2f} seconds'.format((calc_end-calc_start)))
 	#return the players name and player key lists
 	return full_names, player_key
 
@@ -240,7 +240,7 @@ def team_players_query():
     calc_end = time.time()
     #print the calculation time
     print('Process complete')
-    print('Calculation time: {0:0.2f} seconds'.format((calc_end-calc_start)))
+    print('Calculation time for rostered players: {0:0.2f} seconds'.format((calc_end-calc_start)))
     #return full names and player keys
     return full_names, player_key
 
@@ -271,14 +271,16 @@ df_roster = pd.DataFrame({'name': team_full_names, 'key': team_player_key})
 # Testing
 # =============================================================================
 #build url
-def player_stats_query(week):
+def player_stats_query(session=s, week, player_list):
     """
     Returns the player stats for the given week\n
+    Takes the player list as an argument so the function can be used for available players and rostered players\n
     Only works for offensive players (QB, WR, RB, TE) right now
     """    
     #cycle thru each player that is currently available
     for p in avail_player_key:
+        #build the API url for the unique player key
         url_player = base_query_url+'league/'+leagueID+'/players;player_keys='+p+'/stats;type=week;week='+str(wk)
-        test = s.get(url_player, params={'format': 'json'}).json()
-        player_details = test['fantasy_content']['league'][1]['players']['0']['player'][0]
+        raw = session.get(url_player, params={'format': 'json'}).json()
+        player_details = raw['fantasy_content']['league'][1]['players']['0']['player'][0]
         player_stats = test['fantasy_content']['league'][1]['players']['0']['player'][1]['player_stats']['stats'][0]['stat']
