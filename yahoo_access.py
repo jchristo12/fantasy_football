@@ -111,10 +111,10 @@ def create_access_token(oauth):
 # Project code
 # =============================================================================
 def query_setup():
-	project_path = 'C:/Users/Joe/Desktop/fantasy-football-analysis/'
+	project_path = 'C:/Users/Joe/Projects/fantasy_football/'
 
 	#read in the api keys
-	with open(project_path+'yahoo-api-key-secret.json') as api:
+	with open(project_path+'yahoo_api_key.json') as api:
 		file = json.load(api)
 		key = file['consumer_key']
 		secret = file['consumer_secret']
