@@ -200,7 +200,7 @@ def available_players_query():
 def team_players_query():
     """
     Finds the players of a given team\n
-    Returns two lists: one with the players' full name and the other the Yahoo API player key value
+    Returns three lists: one with the players' full name, the Yahoo API player key value, and the player's primary position
     """
     #start the calculation timer
     calc_start = time.time()
