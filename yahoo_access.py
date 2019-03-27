@@ -178,10 +178,13 @@ def available_players_query():
 			last_first = last + ', ' + first
 			#get player key
 			output_key = list(output1[0].values())[0]
-			#add items to lists
+			#get player position
+            output_pos = list(output1[9].values())[0]
+            #add items to lists
 			last_first_names.append(last_first)
 			full_names.append(full)
 			player_key.append(output_key)
+            player_pos.append(output_pos)
 		
 		#stopping rule: if the number of players on the page is less than 25, then stop
 		start += 25
@@ -194,7 +197,7 @@ def available_players_query():
 	print('Process complete')
 	print('Calculation time for all available players: {0:0.2f} seconds'.format((calc_end-calc_start)))
 	#return the players name and player key lists
-	return full_names, player_key
+	return full_names, player_key, player_pos
 
 
 def team_players_query():
