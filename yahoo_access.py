@@ -256,7 +256,6 @@ s, base_url = query_setup()
 base_query_url = base_url + 'fantasy/v2/'
 leagueID = 'nfl.l.778518'
 teamID = '.t.2'
-wk = 1
 
 #collect all available players
 avail_full_names, avail_player_key = available_players_query()
@@ -277,10 +276,37 @@ def player_stats_query(session=s, week, player_list):
     Takes the player list as an argument so the function can be used for available players and rostered players\n
     Only works for offensive players (QB, WR, RB, TE) right now
     """    
+    #initialize lists
+    pos_list = []
+    team_list = []
+    
     #cycle thru each player that is currently available
     for p in avail_player_key:
         #build the API url for the unique player key
-        url_player = base_query_url+'league/'+leagueID+'/players;player_keys='+p+'/stats;type=week;week='+str(wk)
+        url_player = base_query_url+'league/'+leagueID+'/players;player_keys='+p+'/stats;type=week;week='+str(week)
+        #convert API call to json
         raw = session.get(url_player, params={'format': 'json'}).json()
+        #parse out the players details info (e.g. position, owned, etc.)
         player_details = raw['fantasy_content']['league'][1]['players']['0']['player'][0]
-        player_stats = test['fantasy_content']['league'][1]['players']['0']['player'][1]['player_stats']['stats'][0]['stat']
+        #parse out position from player details
+        pos = player_details[9]['display_position'].upper()
+        
+        ## FILTER OUT NON-OFFENSE POSITIONS
+        if pos not in ['QB', 'WR', 'RB', 'TE']:
+            continue
+        else:
+        
+            #parse out team from player_details
+            team = player_details[6]['editorial_team_abbr'].upper()
+            #append data to lists
+            pos_list.append(pos)
+            team_list.append(team)
+            
+            #initialize a stats list
+            stats_list = []
+            #parse out the player stats
+            player_stats = raw['fantasy_content']['league'][1]['players']['0']['player'][1]['player_stats']['stats']
+            #loop thru all of the various stats
+            for s in player_stats:
+                stat_dict = s['stat']
+                stats_list.append(stat_dict)
