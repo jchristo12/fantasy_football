@@ -266,13 +266,13 @@ leagueID = 'nfl.l.778518'
 teamID = '.t.2'
 
 #collect all available players
-avail_full_names, avail_player_key = available_players_query()
+avail_full_names, avail_player_key, avail_player_pos = available_players_query()
 #collect players on roster
-team_full_names, team_player_key = team_players_query()
+team_full_names, team_player_key, team_player_pos = team_players_query()
 
 #make data frames out of the collected lists
-df_avail = pd.DataFrame({'name': avail_full_names, 'key': avail_player_key})
-df_roster = pd.DataFrame({'name': team_full_names, 'key': team_player_key})
+df_avail = pd.DataFrame({'name': avail_full_names, 'key': avail_player_key, 'pos1': avail_player_pos})
+df_roster = pd.DataFrame({'name': team_full_names, 'key': team_player_key, 'pos1': team_player_pos})
 
 # =============================================================================
 # Testing
