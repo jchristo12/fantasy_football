@@ -256,6 +256,7 @@ s, base_url = query_setup()
 base_query_url = base_url + 'fantasy/v2/'
 leagueID = 'nfl.l.778518'
 teamID = '.t.2'
+wk = 1
 
 #collect all available players
 avail_full_names, avail_player_key = available_players_query()
@@ -265,3 +266,19 @@ team_full_names, team_player_key = team_players_query()
 #make data frames out of the collected lists
 df_avail = pd.DataFrame({'name': avail_full_names, 'key': avail_player_key})
 df_roster = pd.DataFrame({'name': team_full_names, 'key': team_player_key})
+
+# =============================================================================
+# Testing
+# =============================================================================
+#build url
+def player_stats_query(week):
+    """
+    Returns the player stats for the given week\n
+    Only works for offensive players (QB, WR, RB, TE) right now
+    """    
+    #cycle thru each player that is currently available
+    for p in avail_player_key:
+        url_player = base_query_url+'league/'+leagueID+'/players;player_keys='+p+'/stats;type=week;week='+str(wk)
+        test = s.get(url_player, params={'format': 'json'}).json()
+        player_details = test['fantasy_content']['league'][1]['players']['0']['player'][0]
+        player_stats = test['fantasy_content']['league'][1]['players']['0']['player'][1]['player_stats']['stats'][0]['stat']
