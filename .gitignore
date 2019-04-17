@@ -155,4 +155,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # specific files
-yahoo-api-key-secret.json
+yahoo_api_key.json
