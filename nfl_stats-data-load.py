@@ -10,14 +10,14 @@ def csv_to_mysql(load_sql):
         #ssh payload
         ssh_config = {'ssh_address_or_host': '63.162.123.67',
                       'ssh_username': 'jchristo',
-                      'ssh_password': 'Lordofthemanor1',
+                      'ssh_password': 'password',
                       'ssh_port': '22',
                       'remote_bind_address': ('127.0.0.1', 3306)}
         
         with ssh.SSHTunnelForwarder(**ssh_config) as tunnel:
 			#mysql payload
 			mysql_config = {'user': 'root',
-							'password': 'Lordofthemanor1',
+							'password': 'password',
 							'database': 'nfl_stats',
 							'host': '127.0.0.1',
 							'port': tunnel.local_bind_port}
