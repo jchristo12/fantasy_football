@@ -61,8 +61,20 @@ def simple_impute(data, numeric_imputer, cat_imputer, threshold=0.25):
     impute_cat_col = missing_values_df.select_dtypes(exclude=np.number).columns
     
     #impute numerical features
-    imputed_numeric_df = pd.DataFrame(numeric_impute.fit_transform(train_wr_miss.loc[:, impute_numeric_col]), columns=impute_numeric_col).add_prefix('imp_')
-    
+    #dataframe of numeric cols to impute
+    imputed_numeric_df = data.loc[:, impute_numeric_col]
+    num_df = pd.DataFrame(numeric_imputer.transform(imputed_numeric_df), columns=impute_numeric_col).add_prefix('imp_')
+
+    #impute categorical features
+    imputed_cat_df = data.loc[:, impute_cat_col]
+    cat_df = pd.DataFrame(cat_imputer.transform(imputed_cat_df), columns=impute_cat_col).add_prefix('imp_')
+
+    #add imputed columns to original data
+    full_df = pd.concat([data, num_df, cat_df], axis=1)
+    #drop the original columns that have missing data
+    final_df = full_df.drop(list(impute_numeric_col)+list(impute_cat_col), axis=1)
+
+    return final_df
 
 
 # =============================================================================
