@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.compose import ColumnTransformer
 
 
 # =============================================================================
@@ -144,8 +145,9 @@ cat_impute = SimpleImputer(missing_values=np.NaN, strategy='constant', fill_valu
 numeric_impute.fit(train_wr_miss.select_dtypes(include=np.number))
 cat_impute.fit(train_wr_miss.select_dtypes(exclude=np.number))
 
-#tst = simple_impute(train_wr_miss, numeric_impute, cat_impute, threshold=0.25)
-
+#build pipelines for numeric and categorical data
+numeric_pipe = Pipeline(steps=[('impute', numeric_impute)])
+cat_pipe = Pipeline(steps=[('impute', cat_impute)])
 
 
 # =============================================================================
@@ -169,7 +171,8 @@ class NumericImpute(TransformerMixin, BaseEstimator):
         pass
 
 
-
+col_preprocess = ColumnTransformer([('numeric', numeric_pipe, numeric_cols),
+                                    ('categorical', cat_pipe, cat_cols)])
 
 
 test_pipeline = Pipeline([('remove_missing', FunctionTransformer(remove_missing_data)),
