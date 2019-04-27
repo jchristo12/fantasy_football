@@ -41,18 +41,12 @@ def remove_missing_data(data, threshold=0.25):
     return result
 
 
-def simple_impute(data, threshold=0.25):
+def simple_impute(data, numeric_imputer, cat_imputer, threshold=0.25):
     """
     Simple impute using sklearn SimpleImputer class\n
-    Numeric features use 'median'; Categorical features use 'most_frequent'
+    Numeric features use 'median'; Categorical features use 'most_frequent'\n
+    Impute objects should be fit to the training data
     """
-    #import class
-    from sklearn.impute import SimpleImputer
-    
-    #Build simple imputers for both numeric and categorical features
-    numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
-    cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
-    
     #missing data columns
     missing_data = missing_data_percent(data)
     
@@ -121,8 +115,16 @@ train_wr_miss = remove_missing_data(train_wr)
 
 
 #impute the rest of the data
+#import class
+from sklearn.impute import SimpleImputer
+    
+#Build simple imputers for both numeric and categorical features
+numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
+cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
 
-
+#fit the imputers
+numeric_impute.fit(train_wr_miss.select_dtypes(include=np.number))
+cat_impute.fit(train_wr_miss.select_dtypes(exclude=np.number))
 
 
 # =============================================================================
@@ -131,7 +133,9 @@ train_wr_miss = remove_missing_data(train_wr)
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.pipeline import Pipeline
 
-test_pipeline = Pipeline([('remove_missing', FunctionTransformer(remove_missing_data)), ('impute', )])
+test_pipeline = Pipeline([('remove_missing', FunctionTransformer(remove_missing_data)),
+                            ('num_impute', numeric_impute),
+                            ('cat_impute', cat_impute)])
 
 
 
