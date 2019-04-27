@@ -147,8 +147,6 @@ cat_impute.fit(train_wr_miss.select_dtypes(exclude=np.number))
 # =============================================================================
 # Testing grounds
 # =============================================================================
-from sklearn.preprocessing import FunctionTransformer
-from sklearn.pipeline import Pipeline
 
 test_pipeline = Pipeline([('remove_missing', FunctionTransformer(remove_missing_data)),
                             ('num_impute', numeric_impute),
