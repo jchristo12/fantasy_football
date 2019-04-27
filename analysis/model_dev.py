@@ -138,6 +138,9 @@ cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
 numeric_impute.fit(train_wr_miss.select_dtypes(include=np.number))
 cat_impute.fit(train_wr_miss.select_dtypes(exclude=np.number))
 
+#tst = simple_impute(train_wr_miss, numeric_impute, cat_impute, threshold=0.25)
+
+
 
 # =============================================================================
 # Testing grounds
@@ -148,33 +151,3 @@ from sklearn.pipeline import Pipeline
 test_pipeline = Pipeline([('remove_missing', FunctionTransformer(remove_missing_data)),
                             ('num_impute', numeric_impute),
                             ('cat_impute', cat_impute)])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
