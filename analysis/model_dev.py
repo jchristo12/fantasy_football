@@ -131,6 +131,8 @@ test_wr = test_wr.reset_index(drop=True)
 train_wr_miss = remove_missing_data(train_wr)
 
 
+
+
 #impute the rest of the data    
 #Build simple imputers for both numeric and categorical features
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
@@ -147,6 +149,26 @@ cat_impute.fit(train_wr_miss.select_dtypes(exclude=np.number))
 # =============================================================================
 # Testing grounds
 # =============================================================================
+
+#imputation transformer
+class NumericImpute(TransformerMixin, BaseEstimator):
+    """Impute missing data for numeric features"""
+    #Class attributes
+    pass
+
+    #Initializer/Instance Attributes
+    def __init__(self):
+        pass
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        
+
+
+
+
 
 test_pipeline = Pipeline([('remove_missing', FunctionTransformer(remove_missing_data)),
                             ('num_impute', numeric_impute),
