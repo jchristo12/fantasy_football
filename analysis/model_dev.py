@@ -18,7 +18,19 @@ def divide_by_pos_wk(data, pos, wk):
     df = data[(data['pos1']==pos) & (data['wk']==wk)]
     return df
     
-
+def remove_missing_data(data, threshold=0.25):
+    """
+    Remove data that has more than the threshold % of missing values
+    """
+    #find % of total rows with missing data
+    missing_data_pct = data.isna().sum() / data.shape[0]
+    #list all of the columns that have missing data
+    missing_cols = list(missing_data_pct[missing_data_pct > threshold].sort_values(ascending=False).index)
+    #drop the columns that have missing values above threshold
+    result = data.drop(missing_cols, axis=1, inplace=False)
+    
+    return result
+    
 
 # =============================================================================
 # Data Setup
@@ -50,6 +62,52 @@ df_rook = df_clean2.loc[df_clean2['exp']==1, :]
 #segment out for WR and week 10
 df_wr10 = divide_by_pos_wk(df_vet, 'WR', 10)
 
+
 # =============================================================================
 # Data Analysis
 # =============================================================================
+from sklearn.model_selection import train_test_split
+
+#set the random seed for reproducability
+random.seed(837)
+
+#break out the data between training and test
+train_wr, test_wr = train_test_split(df_wr10, train_size=0.75, test_size=0.25, shuffle=True)
+#reset index on both dataframes
+train_wr = train_wr.reset_index(drop=True)
+test_wr = test_wr.reset_index(drop=True)
+
+#remove columns with too much missing data
+train_wr_miss = remove_missing_data(train_wr)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
