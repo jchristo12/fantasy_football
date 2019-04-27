@@ -10,7 +10,7 @@ import time
 #sklearn imports
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import FunctionTransformer
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.compose import ColumnTransformer
@@ -141,40 +141,23 @@ cat_cols = list(train_wr_miss.select_dtypes(exclude=np.number).columns)
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
 cat_impute = SimpleImputer(missing_values=np.NaN, strategy='constant', fill_value='missing')
 
-#fit the imputers
-numeric_impute.fit(train_wr_miss.select_dtypes(include=np.number))
-cat_impute.fit(train_wr_miss.select_dtypes(exclude=np.number))
+#one hot encoder for categorical variables
+cat_onehotencode = OneHotEncoder()
 
-#build pipelines for numeric and categorical data
+
+#build different pipelines for numeric and categorical data
 numeric_pipe = Pipeline(steps=[('impute', numeric_impute)])
-cat_pipe = Pipeline(steps=[('impute', cat_impute)])
 
+cat_pipe = Pipeline(steps=[('impute', cat_impute),
+                            'onehotencode', cat_onehotencode])
+
+#Perform transformations on the columns
+col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numeric_cols),
+                                                 ('categorical', cat_pipe, cat_cols)])
 
 # =============================================================================
 # Testing grounds
 # =============================================================================
 
-#imputation transformer
-class NumericImpute(TransformerMixin, BaseEstimator):
-    """Impute missing data for numeric features"""
-    #Class attributes
-    pass
-
-    #Initializer/Instance Attributes
-    def __init__(self):
-        pass
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        pass
-
-
-col_preprocess = ColumnTransformer([('numeric', numeric_pipe, numeric_cols),
-                                    ('categorical', cat_pipe, cat_cols)])
-
-
-test_pipeline = Pipeline([('remove_missing', FunctionTransformer(remove_missing_data)),
-                            ('num_impute', numeric_impute),
-                            ('cat_impute', cat_impute)])
+final_pipe = Pipeline(steps=[('remove_missing', FunctionTransformer(remove_missing_data)),
+                              'col_preprocess', col_preprocess])
