@@ -9,6 +9,14 @@ import time
 
 
 # =============================================================================
+# Helper functions
+# =============================================================================
+def missing_data_percent(data):
+    result = data.isna().sum() / data.shape[0]
+    return result
+
+
+# =============================================================================
 # Functions
 # =============================================================================
 def divide_by_pos_wk(data, pos, wk):
@@ -18,19 +26,50 @@ def divide_by_pos_wk(data, pos, wk):
     df = data[(data['pos1']==pos) & (data['wk']==wk)]
     return df
     
+
 def remove_missing_data(data, threshold=0.25):
     """
     Remove data that has more than the threshold % of missing values
     """
     #find % of total rows with missing data
-    missing_data_pct = data.isna().sum() / data.shape[0]
+    missing_data = missing_data_percent(data)
     #list all of the columns that have missing data
-    missing_cols = list(missing_data_pct[missing_data_pct > threshold].sort_values(ascending=False).index)
+    missing_cols = list(missing_data[missing_data > threshold].sort_values(ascending=False).index)
     #drop the columns that have missing values above threshold
     result = data.drop(missing_cols, axis=1, inplace=False)
     
     return result
+
+
+def simple_impute(data, threshold=0.25):
+    """
+    Simple impute using sklearn SimpleImputer class\n
+    Numeric features use 'median'; Categorical features use 'most_frequent'
+    """
+    #import class
+    from sklearn.impute import SimpleImputer
     
+    #Build simple imputers for both numeric and categorical features
+    numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
+    cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
+    
+    #missing data columns
+    missing_data = missing_data_percent(data)
+    
+    #columns with missing values but less than or equal to 25%
+    impute_cols = list(missing_data[(missing_data <= threshold) & (missing_data > 0)].sort_values(ascending=False).index)
+    
+    #create a dataframe of all of the features to impute
+    missing_values_df = data.drop(data.columns.difference(impute_cols), axis=1, inplace=False)
+    #numeric features to impute
+    impute_numeric_col = missing_values_df.select_dtypes(include=np.number).columns
+    #categorical features to impute
+    impute_cat_col = missing_values_df.select_dtypes(exclude=np.number).columns
+    
+    #impute numerical features
+    imputed_numeric_df = pd.DataFrame(numeric_impute.fit_transform(train_wr_miss.loc[:, impute_numeric_col]), columns=impute_numeric_col).add_prefix('imp_')
+    
+
 
 # =============================================================================
 # Data Setup
@@ -81,6 +120,18 @@ test_wr = test_wr.reset_index(drop=True)
 train_wr_miss = remove_missing_data(train_wr)
 
 
+#impute the rest of the data
+
+
+
+
+# =============================================================================
+# Testing grounds
+# =============================================================================
+from sklearn.preprocessing import FunctionTransformer
+from sklearn.pipeline import Pipeline
+
+test_pipeline = Pipeline([('remove_missing', FunctionTransformer(remove_missing_data)), ('impute', )])
 
 
 
