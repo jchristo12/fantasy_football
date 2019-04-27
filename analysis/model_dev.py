@@ -130,8 +130,10 @@ test_wr = test_wr.reset_index(drop=True)
 #remove columns with too much missing data
 train_wr_miss = remove_missing_data(train_wr)
 
-
-
+#store the numeric columns
+numeric_cols = list(train_wr_miss.select_dtypes(include=np.number).columns)
+#store the categorical columns
+cat_cols = list(train_wr_miss.select_dtypes(exclude=np.number).columns)
 
 #impute the rest of the data    
 #Build simple imputers for both numeric and categorical features
@@ -164,7 +166,7 @@ class NumericImpute(TransformerMixin, BaseEstimator):
         return self
 
     def transform(self, X):
-        
+        pass
 
 
 
