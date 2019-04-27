@@ -20,6 +20,7 @@ from sklearn.compose import ColumnTransformer
 # Helper functions
 # =============================================================================
 def missing_data_percent(data):
+    """Calculate the percentage of total observations that are missing and return a pd.Series"""
     result = data.isna().sum() / data.shape[0]
     return result
 
@@ -33,6 +34,7 @@ def divide_by_pos_wk(data, pos, wk):
 
 
 def drop_columns(data, cols_to_drop):
+    """Drop specified columns and return the truncated dataframe"""
     result = data.drop(cols_to_drop, axis=1)
     return result
 
@@ -115,8 +117,10 @@ df_clean2 = df_clean2.astype(col_dtypes_alt)
 
 #remove stat columns that we won't know at time of analysis
 drop_stat_cols = list(df_clean2.loc[:, 'pa':'tdret'].columns)
+#addl columns to drop
 more_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
 addl_drop_cols = ['dob', 'udog', 'nflid']
+#combine all columns to drop
 all_drop_cols = drop_stat_cols + addl_drop_cols + more_drop_cols
 
 #store dataframe of non-rookies
