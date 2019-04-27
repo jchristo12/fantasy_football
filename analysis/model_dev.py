@@ -24,7 +24,6 @@ def missing_data_percent(data):
     result = data.isna().sum() / data.shape[0]
     return result
 
-
 def divide_by_pos_wk(data, pos, wk):
     """
     Take a dataframe, position, and week and return the subset of the data in a new dataframe.
@@ -32,16 +31,10 @@ def divide_by_pos_wk(data, pos, wk):
     df = data[(data['pos1']==pos) & (data['wk']==wk)]
     return df
 
-
 def drop_columns(data, cols_to_drop):
     """Drop specified columns and return the truncated dataframe"""
     result = data.drop(cols_to_drop, axis=1)
     return result
-
-
-# =============================================================================
-# Functions
-# =============================================================================
 
 def remove_missing_data(data, threshold=0.25):
     """
@@ -55,7 +48,6 @@ def remove_missing_data(data, threshold=0.25):
     result = data.drop(missing_cols, axis=1, inplace=False)
     
     return result
-
 
 def simple_impute(data, numeric_imputer, cat_imputer, threshold=0.25):
     """
@@ -144,8 +136,13 @@ test_wr = test_wr.reset_index(drop=True)
 # =============================================================================
 # EDA
 # =============================================================================
+#drop columns
+df_eda1 = drop_columns(train_wr, all_drop_cols)
+
 #remove columns with too much missing data
-#train_wr_miss = remove_missing_data(train_wr)
+df_eda2 = remove_missing_data(df_eda1)
+eda_missing = missing_data_percent(df_eda2)
+eda_missing[eda_missing>0]
 
 
 # =============================================================================
