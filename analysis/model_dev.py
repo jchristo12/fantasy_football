@@ -115,12 +115,12 @@ df_clean2 = df_clean2.astype(col_dtypes_alt)
 
 #remove stat columns that we won't know at time of analysis
 drop_stat_cols = list(df_clean2.loc[:, 'pa':'tdret'].columns)
-df_clean3 = df_clean2.drop(drop_stat_cols, axis=1)
+#df_clean3 = drop_columns(df_clean2, drop_stat_cols)
 
 #store dataframe of non-rookies
-df_vet = df_clean3.loc[df_clean2['exp']!=1, :]
+df_vet = df_clean2.loc[df_clean2['exp']!=1, :]
 #store dataframe of rookie data
-df_rook = df_clean3.loc[df_clean2['exp']==1, :]
+df_rook = df_clean2.loc[df_clean2['exp']==1, :]
 
 #segment out for WR and week 10
 df_wr10 = divide_by_pos_wk(df_vet, 'WR', 10)
@@ -169,6 +169,7 @@ col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numer
 # Testing grounds
 # =============================================================================
 
-final_pipe = Pipeline(steps=[('remove_missing', FunctionTransformer(remove_missing_data)),
-                              'col_preprocess', col_preprocess])
+final_pipe = Pipeline(steps=[('drop_columns', FunctionTransformer(func=drop_columns, kw_args={'cols_to_drop': drop_stat_cols})),
+                             ('remove_missing', FunctionTransformer(func=remove_missing_data)),
+                             ('col_preprocess', col_preprocess)])
 
