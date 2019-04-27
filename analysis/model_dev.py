@@ -115,7 +115,9 @@ df_clean2 = df_clean2.astype(col_dtypes_alt)
 
 #remove stat columns that we won't know at time of analysis
 drop_stat_cols = list(df_clean2.loc[:, 'pa':'tdret'].columns)
-#df_clean3 = drop_columns(df_clean2, drop_stat_cols)
+more_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
+addl_drop_cols = ['dob', 'udog', 'nflid']
+all_drop_cols = drop_stat_cols + addl_drop_cols + more_drop_cols
 
 #store dataframe of non-rookies
 df_vet = df_clean2.loc[df_clean2['exp']!=1, :]
@@ -125,10 +127,6 @@ df_rook = df_clean2.loc[df_clean2['exp']==1, :]
 #segment out for WR and week 10
 df_wr10 = divide_by_pos_wk(df_vet, 'WR', 10)
 
-
-# =============================================================================
-# Data Analysis
-# =============================================================================
 #set the random seed for reproducability
 random.seed(837)
 
@@ -138,13 +136,21 @@ train_wr, test_wr = train_test_split(df_wr10, train_size=0.75, test_size=0.25, s
 train_wr = train_wr.reset_index(drop=True)
 test_wr = test_wr.reset_index(drop=True)
 
-#remove columns with too much missing data
-train_wr_miss = remove_missing_data(train_wr)
 
+# =============================================================================
+# EDA
+# =============================================================================
+#remove columns with too much missing data
+#train_wr_miss = remove_missing_data(train_wr)
+
+
+# =============================================================================
+# Setup Pipelines
+# =============================================================================
 #store the numeric columns
-numeric_cols = list(train_wr_miss.select_dtypes(include=np.number).columns)
+numeric_cols = list(train_wr.select_dtypes(include=np.number).columns)
 #store the categorical columns
-cat_cols = list(train_wr_miss.select_dtypes(exclude=np.number).columns)
+cat_cols = list(train_wr.select_dtypes(exclude=np.number).columns)
 
 #impute the rest of the data    
 #Build simple imputers for both numeric and categorical features
@@ -169,7 +175,6 @@ col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numer
 # Testing grounds
 # =============================================================================
 
-final_pipe = Pipeline(steps=[('drop_columns', FunctionTransformer(func=drop_columns, kw_args={'cols_to_drop': drop_stat_cols})),
+training_pipe = Pipeline(steps=[('drop_columns', FunctionTransformer(func=drop_columns, kw_args={'cols_to_drop': all_drop_cols})),
                              ('remove_missing', FunctionTransformer(func=remove_missing_data)),
                              ('col_preprocess', col_preprocess)])
-
