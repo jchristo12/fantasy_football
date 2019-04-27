@@ -138,7 +138,7 @@ cat_cols = list(train_wr_miss.select_dtypes(exclude=np.number).columns)
 #impute the rest of the data    
 #Build simple imputers for both numeric and categorical features
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
-cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
+cat_impute = SimpleImputer(missing_values=np.NaN, strategy='constant', fill_value='missing')
 
 #fit the imputers
 numeric_impute.fit(train_wr_miss.select_dtypes(include=np.number))
