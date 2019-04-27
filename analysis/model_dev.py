@@ -31,6 +31,12 @@ def divide_by_pos_wk(data, pos, wk):
     df = data[(data['pos1']==pos) & (data['wk']==wk)]
     return df
 
+
+def drop_columns(data, cols_to_drop):
+    result = data.drop(cols_to_drop, axis=1)
+    return result
+
+
 # =============================================================================
 # Functions
 # =============================================================================
