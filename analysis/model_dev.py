@@ -7,6 +7,13 @@ import matplotlib.pyplot as plt
 import random
 import time
 
+#sklearn imports
+from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import FunctionTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline, FeatureUnion
+
 
 # =============================================================================
 # Helper functions
@@ -111,8 +118,6 @@ df_wr10 = divide_by_pos_wk(df_vet, 'WR', 10)
 # =============================================================================
 # Data Analysis
 # =============================================================================
-from sklearn.model_selection import train_test_split
-
 #set the random seed for reproducability
 random.seed(837)
 
@@ -126,10 +131,7 @@ test_wr = test_wr.reset_index(drop=True)
 train_wr_miss = remove_missing_data(train_wr)
 
 
-#impute the rest of the data
-#import class
-from sklearn.impute import SimpleImputer
-    
+#impute the rest of the data    
 #Build simple imputers for both numeric and categorical features
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
 cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
