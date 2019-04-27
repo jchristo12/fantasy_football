@@ -24,16 +24,16 @@ def missing_data_percent(data):
     return result
 
 
-# =============================================================================
-# Functions
-# =============================================================================
 def divide_by_pos_wk(data, pos, wk):
     """
     Take a dataframe, position, and week and return the subset of the data in a new dataframe.
     """
     df = data[(data['pos1']==pos) & (data['wk']==wk)]
     return df
-    
+
+# =============================================================================
+# Functions
+# =============================================================================
 
 def remove_missing_data(data, threshold=0.25):
     """
