@@ -127,6 +127,18 @@ class TypeSelector(BaseEstimator, TransformerMixin):
         else:
             return X.select_dtypes(exclude=np.number)
 
+class RemoveMissingData(BaseEstimator, TransformerMixin):
+    """Remove features where the percentage of rows with missing data is above a threshold"""
+    def __init__(self, threshold=0.25):
+        self.threshold = threshold
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        output = remove_missing_data(data=X, threshold=self.threshold)
+        return output
+
 
 # =============================================================================
 # Data Setup
@@ -225,8 +237,10 @@ cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
 # =============================================================================
 
 training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=cols_to_use)),
-                                #('remove_missing', FunctionTransformer(func=remove_missing_data)),
+                                ('remove_missing', RemoveMissingData(threshold=0.25)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
                                                                                 ('categorical_data', cat_pipe)]))])
 
 training_pipe.fit_transform(train_wr)
+
+RemoveMissingData().fit_transform(train_wr)
