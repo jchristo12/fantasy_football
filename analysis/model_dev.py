@@ -54,6 +54,15 @@ def exclude_response(data, response_feat='f_pts'):
     x_df = data.drop(response_feat, axis=1)
     return x_df
 
+def col_type_split(data, col_type=np.number):
+    """
+    Return the column names for the specified data type and column names for the remaining features
+    """
+    num_cols = list(data.select_dtypes(include=col_type).columns)
+    cat_cols = list(data.select_dtypes(exclude=col_type).columns)
+    #return two lists: numeric and non-numeric columns
+    return num_cols, cat_cols
+
 
 # =============================================================================
 # Transformer Classes
@@ -189,7 +198,6 @@ cat_impute = SimpleImputer(missing_values=np.NaN, strategy='constant', fill_valu
 
 #one hot encoder for categorical variables
 cat_onehotencode = OneHotEncoder()
-
 
 #build different pipelines for numeric and categorical data
 numeric_pipe = Pipeline(steps=[('dtype', TypeSelector(True)),
