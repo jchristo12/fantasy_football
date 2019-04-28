@@ -49,40 +49,6 @@ def remove_missing_data(data, threshold=0.25):
     
     return result
 
-def simple_impute(data, numeric_imputer, cat_imputer, threshold=0.25):
-    """
-    Simple impute using sklearn SimpleImputer class\n
-    Numeric features use 'median'; Categorical features use 'most_frequent'\n
-    Impute objects should be fit to the training data
-    """
-    #missing data columns
-    missing_data = missing_data_percent(data)
-    
-    #columns with missing values but less than or equal to 25%
-    impute_cols = list(missing_data[(missing_data <= threshold) & (missing_data > 0)].sort_values(ascending=False).index)
-    
-    #create a dataframe of all of the features to impute
-    missing_values_df = data.drop(data.columns.difference(impute_cols), axis=1, inplace=False)
-    #numeric features to impute
-    impute_numeric_col = missing_values_df.select_dtypes(include=np.number).columns
-    #categorical features to impute
-    impute_cat_col = missing_values_df.select_dtypes(exclude=np.number).columns
-    
-    #impute numerical features
-    #dataframe of numeric cols to impute
-    imputed_numeric_df = data.loc[:, impute_numeric_col]
-    num_df = pd.DataFrame(numeric_imputer.transform(imputed_numeric_df), columns=impute_numeric_col).add_prefix('imp_')
-
-    #impute categorical features
-    imputed_cat_df = data.loc[:, impute_cat_col]
-    cat_df = pd.DataFrame(cat_imputer.transform(imputed_cat_df), columns=impute_cat_col).add_prefix('imp_')
-
-    #add imputed columns to original data
-    full_df = pd.concat([data, num_df, cat_df], axis=1)
-    #drop the original columns that have missing data
-    final_df = full_df.drop(list(impute_numeric_col)+list(impute_cat_col), axis=1)
-
-    return final_df
 
 # =============================================================================
 # Transformer Classes
@@ -199,7 +165,7 @@ df_eda1 = drop_columns(train_wr, all_drop_cols)
 
 #remove columns with too much missing data
 df_eda2 = remove_missing_data(df_eda1)
-eda_missing = missing_data_percent(df_eda2)
+eda_missing = missing_data_percent(df_eda1)
 eda_missing[eda_missing>0]
 
 
