@@ -49,6 +49,11 @@ def remove_missing_data(data, threshold=0.25):
     
     return result
 
+def exclude_response(data, response_feat='f_pts'):
+    """Drop the specified response feature from the data"""
+    x_df = data.drop(response_feat, axis=1)
+    return x_df
+
 
 # =============================================================================
 # Transformer Classes
