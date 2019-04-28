@@ -177,6 +177,9 @@ test_wr = test_wr.reset_index(drop=True)
 #drop columns
 df_eda1 = drop_columns(train_wr, all_drop_cols)
 
+#separate numeric and categorical variables
+num_cols, cat_cols = col_type_split(df_eda1)
+
 #remove columns with too much missing data
 df_eda2 = remove_missing_data(df_eda1)
 eda_missing = missing_data_percent(df_eda1)
@@ -186,11 +189,6 @@ eda_missing[eda_missing>0]
 # =============================================================================
 # Setup Pipelines
 # =============================================================================
-#store the numeric columns
-#numeric_cols = list(train_wr.select_dtypes(include=np.number).columns)
-#store the categorical columns
-#cat_cols = list(train_wr.select_dtypes(exclude=np.number).columns)
-
 #impute the rest of the data    
 #Build simple imputers for both numeric and categorical features
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
