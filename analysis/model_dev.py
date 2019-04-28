@@ -84,6 +84,29 @@ def simple_impute(data, numeric_imputer, cat_imputer, threshold=0.25):
 
     return final_df
 
+# =============================================================================
+# Transformer Classes
+# =============================================================================
+class ColumnSelector(BaseEstimator, TransformerMixin):
+    """Transformer to return a subset of a DataFrame"""
+    def __init__(self, columns):
+        self.columns = columns
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        #check if the object is a pandas dataframe
+        assert isinstance(X, pd.DataFrame)
+        #error handling
+        try:
+            #return the subset of the dataframe
+            return X[self.columns]
+        except KeyError:
+            #return an error message if the specified columns aren't in the datframe
+            cols_error = list(set(self.columns) - set(X.columns))
+            raise KeyError('The DataFrame does not include the columsn: %s' %cols_error)
+
 
 # =============================================================================
 # Data Setup
