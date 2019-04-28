@@ -107,6 +107,26 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
             cols_error = list(set(self.columns) - set(X.columns))
             raise KeyError('The DataFrame does not include the columsn: %s' %cols_error)
 
+class TypeSelector(BaseEstimator, TransformerMixin):
+    """
+    Separates out the columns by data type. Mimics the 'ColumnTransformer' class\n
+    'numeric' is a boolean value
+    """
+    def __init__(self, numeric):
+        assert isinstance(numeric, bool)
+        self.numeric = numeric
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        assert isinstance(X, pd.DataFrame)
+        #set up for numeric columns and everything else
+        if self.numeric == True:
+            return X.select_dtypes(include=np.number)
+        else:
+            return X.select_dtypes(exclude=np.number)
+
 
 # =============================================================================
 # Data Setup
@@ -192,7 +212,7 @@ cat_onehotencode = OneHotEncoder()
 numeric_pipe = Pipeline(steps=[('impute', numeric_impute)])
 
 cat_pipe = Pipeline(steps=[('impute', cat_impute),
-                            'onehotencode', cat_onehotencode])
+                            ('onehotencode', cat_onehotencode)])
 
 #Perform transformations on the columns
 col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numeric_cols),
@@ -203,8 +223,10 @@ col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numer
 # =============================================================================
 
 training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=cols_to_use)),
-                             ('remove_missing', FunctionTransformer(func=remove_missing_data)),
+                             ('remove_missing', FunctionTransformer(func=remove_missing_data, validate=False)),
                              ('col_preprocess', col_preprocess)])
 
-cs = ColumnSelector(cols_to_use)
-cs.fit_transform(train_wr).head()
+training_pipe.fit_transform(train_wr)
+
+test_df = ColumnSelector(cols_to_use).fit_transform(train_wr)
+training_pipe.fit_transform(test_df)
