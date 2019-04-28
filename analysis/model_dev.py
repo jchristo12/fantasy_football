@@ -195,9 +195,9 @@ eda_missing[eda_missing>0]
 # Setup Pipelines
 # =============================================================================
 #store the numeric columns
-numeric_cols = list(train_wr.select_dtypes(include=np.number).columns)
+#numeric_cols = list(train_wr.select_dtypes(include=np.number).columns)
 #store the categorical columns
-cat_cols = list(train_wr.select_dtypes(exclude=np.number).columns)
+#cat_cols = list(train_wr.select_dtypes(exclude=np.number).columns)
 
 #impute the rest of the data    
 #Build simple imputers for both numeric and categorical features
@@ -209,24 +209,21 @@ cat_onehotencode = OneHotEncoder()
 
 
 #build different pipelines for numeric and categorical data
-numeric_pipe = Pipeline(steps=[('impute', numeric_impute)])
+numeric_pipe = Pipeline(steps=[('dtype', TypeSelector(True)),
+                               ('impute', numeric_impute)])
 
-cat_pipe = Pipeline(steps=[('impute', cat_impute),
+cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
+                            ('impute', cat_impute),
                             ('onehotencode', cat_onehotencode)])
 
 #Perform transformations on the columns
-col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numeric_cols),
-                                                 ('categorical', cat_pipe, cat_cols)])
+#col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numeric_cols),
+#                                                 ('categorical', cat_pipe, cat_cols)])
 
 # =============================================================================
 # Testing grounds
 # =============================================================================
 
 training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=cols_to_use)),
-                             ('remove_missing', FunctionTransformer(func=remove_missing_data, validate=False)),
-                             ('col_preprocess', col_preprocess)])
-
-training_pipe.fit_transform(train_wr)
-
-test_df = ColumnSelector(cols_to_use).fit_transform(train_wr)
-training_pipe.fit_transform(test_df)
+                                ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
+                                                                                ('categorical_data', cat_pipe)]))])
