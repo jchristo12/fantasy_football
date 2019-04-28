@@ -199,9 +199,6 @@ cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
                             ('impute', cat_impute),
                             ('onehotencode', cat_onehotencode)])
 
-#Perform transformations on the columns
-#col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numeric_cols),
-#                                                 ('categorical', cat_pipe, cat_cols)])
 
 # =============================================================================
 # Testing grounds
@@ -214,4 +211,4 @@ training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=cols_to_u
 
 training_pipe.fit_transform(train_wr)
 
-RemoveMissingData().fit_transform(train_wr)
+FunctionTransformer(func=exclude_response).fit_transform(train_wr)
