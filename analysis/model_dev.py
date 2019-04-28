@@ -137,6 +137,9 @@ more_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
 addl_drop_cols = ['dob', 'udog', 'nflid']
 #combine all columns to drop
 all_drop_cols = drop_stat_cols + addl_drop_cols + more_drop_cols
+#find the columns to use in analysis
+cols_to_use = list(set(list(df_clean2.columns)).difference(all_drop_cols))
+
 
 #store dataframe of non-rookies
 df_vet = df_clean2.loc[df_clean2['exp']!=1, :]
@@ -199,6 +202,9 @@ col_preprocess = ColumnTransformer(transformers=[('numeric', numeric_pipe, numer
 # Testing grounds
 # =============================================================================
 
-training_pipe = Pipeline(steps=[('drop_columns', FunctionTransformer(func=drop_columns, kw_args={'cols_to_drop': all_drop_cols})),
+training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=cols_to_use)),
                              ('remove_missing', FunctionTransformer(func=remove_missing_data)),
                              ('col_preprocess', col_preprocess)])
+
+cs = ColumnSelector(cols_to_use)
+cs.fit_transform(train_wr).head()
