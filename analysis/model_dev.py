@@ -211,10 +211,9 @@ cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
 # =============================================================================
 
 training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=cols_to_use)),
+                                ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                 ('remove_missing', RemoveMissingData(threshold=0.25)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
                                                                                 ('categorical_data', cat_pipe)]))])
 
 training_pipe.fit_transform(train_wr)
-
-FunctionTransformer(func=exclude_response).fit_transform(train_wr)
