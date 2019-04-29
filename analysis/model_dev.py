@@ -8,12 +8,13 @@ import time
 
 #sklearn imports
 from sklearn.base import TransformerMixin, BaseEstimator
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestRegressor
+import sklearn.metrics as metrics
 
 # =============================================================================
 # Helper functions
@@ -159,7 +160,7 @@ df_rook = df_clean2.loc[df_clean2['exp']==1, :]
 df_wr10 = divide_by_pos_wk(df_vet, 'WR', 10)
 
 #break out the data between training and test
-train_wr, test_wr = train_test_split(df_wr10, train_size=0.75, test_size=0.25, shuffle=True, random_state=67)
+train_wr, test_wr = train_test_split(df_wr10, train_size=0.8, test_size=0.2, shuffle=True, random_state=67)
 #reset index on both dataframes
 train_wr = train_wr.reset_index(drop=True)
 test_wr = test_wr.reset_index(drop=True)
@@ -199,22 +200,39 @@ cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
                             ('impute', cat_impute),
                             ('onehotencode', cat_onehotencode)])
 
+#prepare the response data
+y_train = train_wr['f_pts']
+y_test = test_wr['f_pts']
+
+#make a scoring metric for GridSearchCV
+mse = metrics.make_scorer(metrics.mean_squared_error)
+
 
 # =============================================================================
-# Testing grounds
+# Modeling
 # =============================================================================
-
+#preprocessing pipeline
 preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
                                 ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                 ('remove_missing', RemoveMissingData(threshold=0.25)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
                                                                                 ('categorical_data', cat_pipe)],))])
+#modeling pipeline
+rf_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
+                             ('rf', RandomForestRegressor(n_estimators=50))])
 
-model_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
-                             ('rf', RandomForestRegressor(n_estimators=50, max_depth=5))])
+#build the parameter grid to be used in GridSearch class
+rf_param_grid = {'rf__max_depth': [5, 10]}
 
-x_train = train_wr.drop('f_pts', axis=1)
-y_train = train_wr['f_pts']
-y_test = test_wr['f_pts']
+#create the GridSearch class
+rf_grid = GridSearchCV(rf_pipe, rf_param_grid, cv=10, scoring=mse, iid=False)
+#Fit the model using CV
+rf_grid.fit(train_wr, y_train)
+#RMSE of best model
+rf_rmse = np.sqrt(rf_grid.best_score_)
 
-fit_model = model_pipe.fit(train_wr, y_train)
+
+# =============================================================================
+# Testing Grounds
+# =============================================================================
+pd.Series(rf_pipe.named_steps['rf'].feature_importances_).sort_values(ascending=False)
