@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import numpy as np
 import seaborn as sb
@@ -14,7 +13,7 @@ from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.compose import ColumnTransformer
-
+from sklearn.ensemble import RandomForestRegressor
 
 # =============================================================================
 # Helper functions
@@ -81,11 +80,11 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
         #error handling
         try:
             #return the subset of the dataframe
-            return X[self.columns]
+            return X.drop(self.columns, axis=1)
         except KeyError:
             #return an error message if the specified columns aren't in the datframe
             cols_error = list(set(self.columns) - set(X.columns))
-            raise KeyError('The DataFrame does not include the columsn: %s' %cols_error)
+            raise KeyError('The DataFrame does not include the columns: %s' %cols_error)
 
 class TypeSelector(BaseEstimator, TransformerMixin):
     """
@@ -150,7 +149,7 @@ addl_drop_cols = ['dob', 'udog', 'nflid']
 #combine all columns to drop
 all_drop_cols = drop_stat_cols + addl_drop_cols + more_drop_cols
 #find the columns to use in analysis
-cols_to_use = list(set(list(df_clean2.columns)).difference(all_drop_cols))
+#cols_to_use = list(set(list(df_clean2.columns)).difference(all_drop_cols))
 
 
 #store dataframe of non-rookies
@@ -161,11 +160,8 @@ df_rook = df_clean2.loc[df_clean2['exp']==1, :]
 #segment out for WR and week 10
 df_wr10 = divide_by_pos_wk(df_vet, 'WR', 10)
 
-#set the random seed for reproducability
-random.seed(837)
-
 #break out the data between training and test
-train_wr, test_wr = train_test_split(df_wr10, train_size=0.75, test_size=0.25, shuffle=True)
+train_wr, test_wr = train_test_split(df_wr10, train_size=0.75, test_size=0.25, shuffle=True, random_state=67)
 #reset index on both dataframes
 train_wr = train_wr.reset_index(drop=True)
 test_wr = test_wr.reset_index(drop=True)
@@ -210,10 +206,14 @@ cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
 # Testing grounds
 # =============================================================================
 
-training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=cols_to_use)),
+training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
                                 ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                 ('remove_missing', RemoveMissingData(threshold=0.25)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
-                                                                                ('categorical_data', cat_pipe)]))])
+                                                                                ('categorical_data', cat_pipe)],)),
+                                ('rf', RandomForestRegressor(n_estimators=50, max_depth=5))])
 
-training_pipe.fit_transform(train_wr)
+x_train = train_wr.drop('f_pts', axis=1)
+y_train = train_wr['f_pts']
+
+fit_model = training_pipe.fit(x_train, y_train)
