@@ -30,11 +30,6 @@ def divide_by_pos_wk(data, pos, wk):
     df = data[(data['pos1']==pos) & (data['wk']==wk)]
     return df
 
-def drop_columns(data, cols_to_drop):
-    """Drop specified columns and return the truncated dataframe"""
-    result = data.drop(cols_to_drop, axis=1)
-    return result
-
 def remove_missing_data(data, threshold=0.25):
     """
     Remove data that has more than the threshold % of missing values
@@ -171,7 +166,7 @@ test_wr = test_wr.reset_index(drop=True)
 # EDA
 # =============================================================================
 #drop columns
-df_eda1 = drop_columns(train_wr, all_drop_cols)
+df_eda1 = train_wr.drop(all_drop_cols, axis=1)
 
 #separate numeric and categorical variables
 num_cols, cat_cols = col_type_split(df_eda1)
