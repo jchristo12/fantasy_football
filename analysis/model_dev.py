@@ -144,7 +144,7 @@ df_clean2 = df_clean2.astype(col_dtypes_alt)
 drop_stat_cols = list(df_clean2.loc[:, 'pa':'tdret'].columns)
 #addl columns to drop
 more_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
-addl_drop_cols = ['dob', 'udog', 'nflid']
+addl_drop_cols = ['dob', 'udog', 'nflid', 'surf']
 #combine all columns to drop
 all_drop_cols = drop_stat_cols + addl_drop_cols + more_drop_cols
 #find the columns to use in analysis
@@ -179,6 +179,10 @@ num_cols, cat_cols = col_type_split(df_eda1)
 df_eda2 = remove_missing_data(df_eda1)
 eda_missing = missing_data_percent(df_eda1)
 eda_missing[eda_missing>0]
+
+#boxplot of surface types and f_pts
+sb.boxplot(x='surf', y='f_pts', data=df_eda2)
+df_eda2.groupby(by='surf').agg({'f_pts': ['count', 'min', 'max', 'median', 'mean', 'std']})
 
 
 # =============================================================================
@@ -222,7 +226,7 @@ rf_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
                              ('rf', RandomForestRegressor(n_estimators=50))])
 
 #build the parameter grid to be used in GridSearch class
-rf_param_grid = {'rf__max_depth': [5, 10]}
+rf_param_grid = {'rf__max_depth': [5]}
 
 #create the GridSearch class
 rf_grid = GridSearchCV(rf_pipe, rf_param_grid, cv=10, scoring=mse, iid=False)
