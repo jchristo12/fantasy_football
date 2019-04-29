@@ -62,7 +62,10 @@ def col_type_split(data, col_type=np.number):
 # Transformer Classes
 # =============================================================================
 class ColumnSelector(BaseEstimator, TransformerMixin):
-    """Transformer to return a subset of a DataFrame"""
+    """
+    Transformer to return a subset of a DataFrame\n
+    Columns entered are the columns to drop
+    """
     def __init__(self, columns):
         self.columns = columns
 
@@ -201,14 +204,17 @@ cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
 # Testing grounds
 # =============================================================================
 
-training_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
+preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
                                 ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                 ('remove_missing', RemoveMissingData(threshold=0.25)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
-                                                                                ('categorical_data', cat_pipe)],)),
-                                ('rf', RandomForestRegressor(n_estimators=50, max_depth=5))])
+                                                                                ('categorical_data', cat_pipe)],))])
+
+model_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
+                             ('rf', RandomForestRegressor(n_estimators=50, max_depth=5))])
 
 x_train = train_wr.drop('f_pts', axis=1)
 y_train = train_wr['f_pts']
+y_test = test_wr['f_pts']
 
-fit_model = training_pipe.fit(x_train, y_train)
+fit_model = model_pipe.fit(train_wr, y_train)
