@@ -125,6 +125,9 @@ class RemoveMissingData(BaseEstimator, TransformerMixin):
 #import the data
 df = pd.read_csv('https://github.com/jchristo12/fantasy_football/blob/master/data/full_data.csv?raw=true')
 
+#create home_away categorical variable
+df['home_away'] = np.where(df['team']==df['h'], 'home', 'away')
+
 #remove rows that have NaN for the shifted variables
 df_clean = df[~df.loc[:,'seas_pa':'seas_tdret'].isna().all(axis=1)]
 
@@ -135,7 +138,7 @@ df_clean2 = df_clean[df_clean['pos1'].isin(pos_of_interest)]
 
 #set the column types
 col_dtypes = {'category': ['seas', 'wk', 'pos1', 'team', 'udog', 'v', 'h', 'day', 'stad', 'wdir',
-                          'surf', 'gen_cond', 'gen_dv', 'def_team']}
+                          'surf', 'gen_cond', 'gen_dv', 'def_team', 'home_away']}
 #flip the key and values around so they will work in the argument for 'astype()'
 col_dtypes_alt = {old: new for new, old_all in col_dtypes.items() for old in old_all}
 #make the change to column type
@@ -197,11 +200,7 @@ eda_missing[eda_missing>0]
 sb.boxplot(x='gen_cond', y='f_pts', data=df_eda2)
 df_eda2.groupby(by='gen_cond').agg({'f_pts': summ_stats})
 
-#home versus away
-#create the variable and covert to categorical
-df_eda2['home_away'] = np.where(df_eda2['v']==df_eda2['team'], 'away', 'home')
-df_eda2 = df_eda2.astype({'home_away': 'category'})
-
+#home_away and f_pts
 sb.boxplot(x='home_away', y='f_pts', data=df_eda2, hue='udog_binary')
 df_eda2.groupby(by=['home_away', 'udog_binary']).agg({'f_pts': summ_stats})
 
@@ -251,7 +250,7 @@ preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_dro
 # =============================================================================
 # Modeling
 # =============================================================================
-
+#Random Forest
 #modeling pipeline
 rf_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
                              ('rf', RandomForestRegressor(n_estimators=50))])
