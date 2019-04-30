@@ -1,3 +1,4 @@
+#basic imports
 import pandas as pd
 import math
 import numpy as np
@@ -16,6 +17,10 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestRegressor
 import sklearn.metrics as metrics
+
+#other imports
+import xgboost as xgb
+
 
 # =============================================================================
 # Helper functions
@@ -212,6 +217,9 @@ corr_thres[corr_thres['Var2']=='f_pts'].sort_values(by='Pearson R', ascending=Fa
 sb.scatterplot(x='recent_recy', y='f_pts', data=df_eda2)
 df_eda2.loc[df_eda2['recent_recy']>700, ['full_name']]
 
+#college conference and exp
+sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
+sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 
 # =============================================================================
 # Setup Pipelines
@@ -253,7 +261,7 @@ preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_dro
 #Random Forest
 #modeling pipeline
 rf_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
-                             ('rf', RandomForestRegressor(n_estimators=50))])
+                            ('rf', RandomForestRegressor(n_estimators=50))])
 
 #build the parameter grid to be used in GridSearch class
 rf_param_grid = {'rf__max_depth': [3,5,7,10,15]}
@@ -268,6 +276,31 @@ rf_grid.fit(train_wr, y_train)
 rf_rmse = np.sqrt(rf_grid.best_score_)
 print('Best score: %s' %rf_rmse)
 print('Best parameters: %s' %rf_grid.best_params_)
+
+
+#XGBoost
+#modeling pipeline
+xgb_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
+                            ('xgb', xgb.XGBRegressor(seed=212))])
+
+#xgb parameter grid
+xgb_param_grid = {'xgb__max_depth': [2, 3, 5, 6],
+                    'xgb__eta': [0.1, 0.3, 0.5, 0.9]}
+
+#XGB GridSearch class; 10 fold CV
+xgb_grid = GridSearchCV(xgb_pipe, xgb_param_grid, cv=10, scoring=mse, iid=False)
+xgb_fit_cv = xgb_grid.fit(train_wr, y_train)
+#RMSE of best model
+xgb_rmse_cv = np.sqrt(xgb_grid.best_score_)
+print('Best score: %s' %xgb_rmse_cv)
+print('Best parameters: %s' %xgb_grid.best_params_)
+
+
+
+#static parameter fitting
+xgb_model = rf_pipe.fit(train_wr, y_train)
+xgb_y_pred = xgb_model.predict(test_wr)
+xgb_rmse = np.sqrt(metrics.mean_squared_error(y_test, xgb_y_pred))
 
 
 # =============================================================================
