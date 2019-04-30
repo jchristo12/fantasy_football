@@ -148,7 +148,7 @@ df_clean2 = df_clean2.astype(col_dtypes_alt)
 drop_stat_cols = list(df_clean2.loc[:, 'pa':'tdret'].columns)
 #addl columns to drop
 more_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
-addl_drop_cols = ['dob', 'udog', 'nflid', 'surf', 'ptsv', 'ptsh']
+addl_drop_cols = ['dob', 'udog', 'nflid', 'surf', 'ptsv', 'ptsh', 'h', 'v']
 #combine all columns to drop
 all_drop_cols = drop_stat_cols + addl_drop_cols + more_drop_cols
 #find the columns to use in analysis
