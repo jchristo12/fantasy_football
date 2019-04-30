@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 import numpy as np
 import seaborn as sb
 from python_pkg import python_udf as udf
@@ -144,7 +145,7 @@ df_clean2 = df_clean2.astype(col_dtypes_alt)
 drop_stat_cols = list(df_clean2.loc[:, 'pa':'tdret'].columns)
 #addl columns to drop
 more_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
-addl_drop_cols = ['dob', 'udog', 'nflid', 'surf']
+addl_drop_cols = ['dob', 'udog', 'nflid', 'surf', 'ptsv', 'ptsh']
 #combine all columns to drop
 all_drop_cols = drop_stat_cols + addl_drop_cols + more_drop_cols
 #find the columns to use in analysis
@@ -206,7 +207,11 @@ df_eda2.groupby(by=['home_away', 'udog_binary']).agg({'f_pts': summ_stats})
 
 #correlation of numerical variables
 corr_thres = udf.corr_to_df_summary(df_eda2, threshold=0).reset_index()
-corr_thres[corr_thres['Var1']=='f_pts']
+corr_thres[corr_thres['Var2']=='f_pts'].sort_values(by='Pearson R', ascending=False)
+
+#recent_recy to f_pts
+sb.scatterplot(x='recent_recy', y='f_pts', data=df_eda2)
+df_eda2.loc[df_eda2['recent_recy']>700, ['full_name']]
 
 
 # =============================================================================
@@ -235,29 +240,35 @@ y_test = test_wr['f_pts']
 #make a scoring metric for GridSearchCV
 mse = metrics.make_scorer(metrics.mean_squared_error)
 
-
-# =============================================================================
-# Modeling
-# =============================================================================
 #preprocessing pipeline
 preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
                                 ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                 ('remove_missing', RemoveMissingData(threshold=0.25)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
                                                                                 ('categorical_data', cat_pipe)],))])
+
+
+# =============================================================================
+# Modeling
+# =============================================================================
+
 #modeling pipeline
 rf_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
                              ('rf', RandomForestRegressor(n_estimators=50))])
 
 #build the parameter grid to be used in GridSearch class
-rf_param_grid = {'rf__max_depth': [5]}
+rf_param_grid = {'rf__max_depth': [3,5,7,10,15]}
 
+#set the random number seed
+random.seed(212)
 #create the GridSearch class
 rf_grid = GridSearchCV(rf_pipe, rf_param_grid, cv=10, scoring=mse, iid=False)
 #Fit the model using CV
 rf_grid.fit(train_wr, y_train)
 #RMSE of best model
 rf_rmse = np.sqrt(rf_grid.best_score_)
+print('Best score: %s' %rf_rmse)
+print('Best parameters: %s' %rf_grid.best_params_)
 
 
 # =============================================================================
