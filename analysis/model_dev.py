@@ -169,20 +169,44 @@ test_wr = test_wr.reset_index(drop=True)
 # =============================================================================
 # EDA
 # =============================================================================
+#create a dataframe with all weeks of WR to do EDA
+#only want to look at training data (the same training data that will be used later for model building)
+all_train_df = []
+for w in df_vet['wk'].unique():
+    interim_df = divide_by_pos_wk(df_vet, 'WR', w)
+    trn_df = train_test_split(interim_df, train_size=0.8, test_size=0.2, shuffle=True, random_state=67)[0]
+    all_train_df.append(trn_df)
+#combine all of the training data sets together into one giant dataset
+df_eda = pd.concat(all_train_df, axis=0)
+
 #drop columns
-df_eda1 = train_wr.drop(all_drop_cols, axis=1)
+df_eda1 = df_eda.drop(all_drop_cols, axis=1)
 
 #separate numeric and categorical variables
 num_cols, cat_cols = col_type_split(df_eda1)
+#store summary statistics of interest
+summ_stats = ['count', 'min', 'max', 'median', 'mean', 'std']
 
 #remove columns with too much missing data
 df_eda2 = remove_missing_data(df_eda1)
 eda_missing = missing_data_percent(df_eda1)
 eda_missing[eda_missing>0]
 
-#boxplot of surface types and f_pts
-sb.boxplot(x='surf', y='f_pts', data=df_eda2)
-df_eda2.groupby(by='surf').agg({'f_pts': ['count', 'min', 'max', 'median', 'mean', 'std']})
+#boxplot of gen_cond types and f_pts
+sb.boxplot(x='gen_cond', y='f_pts', data=df_eda2)
+df_eda2.groupby(by='gen_cond').agg({'f_pts': summ_stats})
+
+#home versus away
+#create the variable and covert to categorical
+df_eda2['home_away'] = np.where(df_eda2['v']==df_eda2['team'], 'away', 'home')
+df_eda2 = df_eda2.astype({'home_away': 'category'})
+
+sb.boxplot(x='home_away', y='f_pts', data=df_eda2, hue='udog_binary')
+df_eda2.groupby(by=['home_away', 'udog_binary']).agg({'f_pts': summ_stats})
+
+#correlation of numerical variables
+corr_thres = udf.corr_to_df_summary(df_eda2, threshold=0).reset_index()
+corr_thres[corr_thres['Var1']=='f_pts']
 
 
 # =============================================================================
