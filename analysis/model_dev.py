@@ -295,8 +295,6 @@ xgb_rmse_cv = np.sqrt(xgb_grid.best_score_)
 print('Best score: %s' %xgb_rmse_cv)
 print('Best parameters: %s' %xgb_grid.best_params_)
 
-
-
 #static parameter fitting
 xgb_model = rf_pipe.fit(train_wr, y_train)
 xgb_y_pred = xgb_model.predict(test_wr)
