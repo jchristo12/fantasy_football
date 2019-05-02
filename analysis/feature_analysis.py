@@ -141,7 +141,7 @@ def main():
     #store the new categories
     power_five = ['Big 12', 'Big Ten', 'Atlantic Coast (ACC)', 'Southeastern (SEC)', 'Pacific 12']
     #if conference is in the power 5, then leave it. Otherwise, call it 'Other'
-    player['gen_dv'] = pd.Series(np.where(player['dv'].isin(power_five), player['dv'], 'Other'), dtype='category')
+    player_rolling_sort['gen_dv'] = pd.Series(np.where(player_rolling_sort['dv'].isin(power_five), player_rolling_sort['dv'], 'Other'), dtype='category')
 
 
     # =============================================================================
