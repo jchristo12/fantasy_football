@@ -4,7 +4,7 @@ def main():
         import pandas as pd
         import numpy as np
         import math
-        from python_pkg import python_udf as UDF
+        from python_pkg import python_udf as udf
     except:
         print('Necessary packages not installed. Please install:')
         print('numpy, pandas, math, and python_pkg (UDF)')
