@@ -4,9 +4,10 @@ try:
     import pandas as pd
     import numpy as np
     import math
+    from python_pkg import python_udf as UDF
 except:
     print('Necessary packages not installed. Please install:')
-    print('numpy & pandas')
+    print('numpy, pandas, math, and python_pkg (UDF)')
 
 # =============================================================================
 # Help functions
@@ -157,7 +158,7 @@ general_cond = {'indoor_cond': ['Closed Roof', 'Covered Roof', 'Dome'],
                               'Mostly Sunny', 'Overcast', 'Partly Cloudy', 'Partly CLoudy', 'Partly Sunny',
                               'Sunny', 'Windy']}
 #map the keys to each value to be used in category creation
-general_cond_flipped = {old: new for new, old_all in general_cond.items() for old in old_all}
+general_cond_flipped = udf.dict_key_value_flip(general_cond)
 #create a general conditions feature
 game['gen_cond'] = game['cond'].apply(lambda x: general_cond_flipped[x])
 
@@ -173,6 +174,9 @@ game.loc[game['gen_cond']=='indoor_cond', ['wdir', 'humd']] = ['CALM', 45]
 player_game = player_rolling_sort.merge(game, how='left', on='gid', suffixes=('_poff', '_game'))
 #player+game data to response data
 full_df = player_game.merge(response, on='pk', how='left')
+
+#add variables that require merged data
+full_df['udog_binary'] = full_df['team'].eq(full_df['udog'])
 
 
 # =============================================================================
