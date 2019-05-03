@@ -271,6 +271,11 @@ cat_onehotencode = OneHotEncoder()
 numeric_pipe = Pipeline(steps=[('dtype', TypeSelector(True)),
                                ('impute', numeric_impute)])
 
+#numeric pipeline with standardizer
+numeric_pipe_std = Pipeline(steps=[('dtype', TypeSelector(True)),
+                                    ('standardize', StandardScaler()),
+                                    ('impute', numeric_impute)])
+
 cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
                             ('impute', cat_impute),
                             ('onehotencode', cat_onehotencode)])
@@ -287,6 +292,12 @@ preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_dro
                                 ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
                                                                                 ('categorical_data', cat_pipe)],))])
+
+#preprocessing pipeline with Standardizer
+preprocess_pipe_std = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
+                                        ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
+                                        ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe_std),
+                                                                                        ('categorical_data', cat_pipe)],))])
 
 
 # =============================================================================
