@@ -350,7 +350,7 @@ svr_param_grid = {'svr__C': [1.0],
                     'svr__epsilon': [0.1]}
 
 #cross validation for svr
-svr_model = perform_modeling(svr)
+svr_model = perform_modeling(svr_pipe, svr_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
 
 
 
