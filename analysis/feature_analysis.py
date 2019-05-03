@@ -144,6 +144,39 @@ def main():
     player_rolling_sort['gen_dv'] = pd.Series(np.where(player_rolling_sort['dv'].isin(power_five), player_rolling_sort['dv'], 'Other'), dtype='category')
 
 
+    #Ratio Stat features
+    #Passing
+    #Passing completion
+    player_rolling_sort = ratio_stat('pc', 'pa', 'comp_pct', data=player_rolling_sort)
+    #touchdown to interception
+    player_rolling_sort = ratio_stat('tdp', 'ints', 'td_to_int', data=player_rolling_sort)
+    #Passing yards per completion
+    player_rolling_sort = ratio_stat('py', 'pc', 'yds_per_comp', data=player_rolling_sort)
+
+    #Rushing
+    #Yards per rush
+    player_rolling_sort = ratio_stat('ry', 'ra', 'ryds_per_carry', data=player_rolling_sort)
+    #Carries to touchdown ratio
+    player_rolling_sort = ratio_stat('ra', 'tdr', 'carry_to_td', data=player_rolling_sort)
+    #Carries to fumbles lost ratio
+    player_rolling_sort = ratio_stat('ra', 'fuml', 'carry_to_fuml', data=player_rolling_sort)
+
+    #Receiving
+    #catch percent (catches/targets)
+    player_rolling_sort = ratio_stat('rec', 'trg', 'catch_pct', data=player_rolling_sort)
+    #yards per catch
+    player_rolling_sort = ratio_stat('recy', 'rec', 'yds_per_rec', data=player_rolling_sort)
+    #rec to td's
+    player_rolling_sort = ratio_stat('rec', 'tdrec', 'rec_to_td', data=player_rolling_sort)
+
+    #Return
+    #average return yards
+    player_rolling_sort = ratio_stat('rety', 'ret', 'avg_ret', data=player_rolling_sort)
+    #returns to td's
+    player_rolling_sort = ratio_stat('ret', 'tdret', 'ret_to_td', data=player_rolling_sort)
+
+
+
     # =============================================================================
     # Game Feature Creation
     # =============================================================================
