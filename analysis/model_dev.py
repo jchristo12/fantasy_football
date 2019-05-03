@@ -315,24 +315,30 @@ preprocess_pipe_std = Pipeline(steps=[('subset_data', ColumnSelector(columns=all
 #Random Forest
 #modeling pipeline
 rf_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
-                            ('rf', RandomForestRegressor(n_estimators=50))])
+                            ('rf', RandomForestRegressor(n_jobs=-1))])
 
 #build the parameter grid to be used in GridSearch class
-rf_param_grid = {'rf__max_depth': [3,5,7,10,15]}
+rf_param_grid = {'rf__max_depth': [3, 5, 7, 10, 15],
+                 'rf__n_estimators': [1, 3, 5, 10, 20, 50, 100, 200]}
 
+#start the stopwatch
+rf_start = time.time()
 #set the random number seed
 random.seed(212)
 #CV of random forest model using GridSearchCV
 rf_model = perform_modeling(rf_pipe, rf_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
+#stop the stopwatch
+rf_end = time.time()
 #RMSE of best RF model
 rf_rmse_cv = np.sqrt(rf_model.best_score_)
-
+#total model calc time
+rf_calc_time = rf_end - rf_start
 
 
 #XGBoost
 #modeling pipeline
 xgb_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
-                            ('xgb', xgb.XGBRegressor(seed=212))])
+                            ('xgb', xgb.XGBRegressor(seed=212, n_jobs=-1))])
 
 #xgb parameter grid
 xgb_param_grid = {'xgb__max_depth': [2, 3, 5, 6],
