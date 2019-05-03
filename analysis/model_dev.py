@@ -76,19 +76,19 @@ def col_type_split(data, col_type=np.number):
     #return two lists: numeric and non-numeric columns
     return num_cols, cat_cols
 
-def perform_modeling(fitted_pipeline, param_grid, cv, score, train, y_train):
+def perform_modeling(model_pipeline, param_grid, cv, score, train, y_train):
     """
     Perform a grid search on a estimator pipeline\n
         Return the fitted GridSearchCV object
     """
     #fit the GridSearch object
-    grid = GridSearchCV(fitted_pipeline, param_grid, cv=cv, scoring=score, iid=False)
+    grid = GridSearchCV(model_pipeline, param_grid, cv=cv, scoring=score, iid=False)
     #fit the model and perform CV
     fit_cv = grid.fit(train, y_train)
     #RMSE of best model
     rmse_cv = np.sqrt(fit_cv.best_score_)
     #Print model type
-    print('Model type: %s' %fitted_pipeline.steps[len(fitted_pipeline.steps)-1][0])
+    print('Model type: %s' %model_pipeline.steps[len(model_pipeline.steps)-1][0])
     #Print best score
     print('Best score: %s' %rmse_cv)
     #Print best parameters
@@ -341,8 +341,17 @@ xgb_rmse = np.sqrt(metrics.mean_squared_error(y_test, xgb_y_pred))
 
 
 #SVR
-svr_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
+#modeling pipeline
+svr_pipe = Pipeline(steps=[('preprocess', preprocess_pipe_std),
                             ('svr', SVR(kernel='rbf', C=1.0, epsilon=0.1))])
+
+#SVR parameter grid
+svr_param_grid = {'svr__C': [1.0],
+                    'svr__epsilon': [0.1]}
+
+#cross validation for svr
+svr_model = perform_modeling(svr)
+
 
 
 # =============================================================================
