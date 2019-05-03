@@ -7,7 +7,8 @@ from python_pkg import python_udf as udf
 import matplotlib.pyplot as plt
 import random
 import time
-#import feature_analysis
+import importlib
+#importlib.import_module('feature_analysis')
 
 #sklearn imports
 from sklearn.base import TransformerMixin, BaseEstimator
