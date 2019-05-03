@@ -45,6 +45,8 @@ def main():
                                 2: 'recent_'+new_col,
                                 3: 'last_'+new_col}, inplace=True)
 
+        return added_df
+
 
     # =============================================================================
     # Read in the data
