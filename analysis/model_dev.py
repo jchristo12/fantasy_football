@@ -12,7 +12,7 @@ import time
 #sklearn imports
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.compose import ColumnTransformer
@@ -75,6 +75,25 @@ def col_type_split(data, col_type=np.number):
     #return two lists: numeric and non-numeric columns
     return num_cols, cat_cols
 
+def perform_modeling(fitted_pipeline, param_grid, cv, score, train, y_train):
+    """
+    Perform a grid search on a estimator pipeline\n
+        Return the fitted GridSearchCV object
+    """
+    #fit the GridSearch object
+    grid = GridSearchCV(fitted_pipeline, param_grid, cv=cv, scoring=score, iid=False)
+    #fit the model and perform CV
+    fit_cv = grid.fit(train, y_train)
+    #RMSE of best model
+    rmse_cv = np.sqrt(fit_cv.best_score_)
+    #Print model type
+    print('Model type: %s' %fitted_pipeline.steps[len(fitted_pipeline.steps)-1][0])
+    #Print best score
+    print('Best score: %s' %rmse_cv)
+    #Print best parameters
+    print('Best parameters: %s' %fit_cv.best_params_)
+
+    return fit_cv
 
 # =============================================================================
 # Transformer Classes
@@ -282,14 +301,11 @@ rf_param_grid = {'rf__max_depth': [3,5,7,10,15]}
 
 #set the random number seed
 random.seed(212)
-#create the GridSearch class
-rf_grid = GridSearchCV(rf_pipe, rf_param_grid, cv=10, scoring=mse, iid=False)
-#Fit the model using CV
-rf_grid.fit(train_wr, y_train)
-#RMSE of best model
-rf_rmse = np.sqrt(rf_grid.best_score_)
-print('Best score: %s' %rf_rmse)
-print('Best parameters: %s' %rf_grid.best_params_)
+#CV of random forest model using GridSearchCV
+rf_model = perform_modeling(rf_pipe, rf_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
+#RMSE of best RF model
+rf_rmse_cv = np.sqrt(rf_model.best_score_)
+
 
 
 #XGBoost
@@ -301,13 +317,10 @@ xgb_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
 xgb_param_grid = {'xgb__max_depth': [2, 3, 5, 6],
                     'xgb__eta': [0.1, 0.3, 0.5, 0.9]}
 
-#XGB GridSearch class; 10 fold CV
-xgb_grid = GridSearchCV(xgb_pipe, xgb_param_grid, cv=10, scoring=mse, iid=False)
-xgb_fit_cv = xgb_grid.fit(train_wr, y_train)
-#RMSE of best model
-xgb_rmse_cv = np.sqrt(xgb_grid.best_score_)
-print('Best score: %s' %xgb_rmse_cv)
-print('Best parameters: %s' %xgb_grid.best_params_)
+#Cross validation for XGB model
+xgb_model = perform_modeling(xgb_pipe, xgb_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
+#Store mean CV RMSE score
+xgb_rmse_cv = np.sqrt(xgb_model.best_score_)
 
 #static parameter fitting
 xgb_model = rf_pipe.fit(train_wr, y_train)
@@ -346,3 +359,7 @@ result = remove_model.transform(testing)
 test_pipe = Pipeline(steps=[('remove_miss', RemoveMissingData(threshold=0.25))])
 
 result2 = test_pipe.fit(testing)
+
+#test inserting steps to pipeline
+numeric_pipe.steps.insert(1, ['standardize', StandardScaler()])
+numeric_pipe.steps[len(numeric_pipe.steps)-1][0]
