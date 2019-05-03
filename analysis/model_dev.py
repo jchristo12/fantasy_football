@@ -228,7 +228,7 @@ eda_missing = missing_data_percent(df_eda1)
 eda_missing[eda_missing>0]
 
 #separate numeric and categorical variables
-num_cols, cat_cols = col_type_split(df_eda1)
+num_cols, cat_cols = col_type_split(df_eda2)
 #store summary statistics of interest
 summ_stats = ['count', 'min', 'max', 'median', 'mean', 'std']
 
@@ -246,7 +246,7 @@ corr_thres[corr_thres['Var2']=='f_pts'].sort_values(by='Pearson R', ascending=Fa
 
 #recent_recy to f_pts
 sb.scatterplot(x='recent_recy', y='f_pts', data=df_eda2)
-df_eda2.loc[df_eda2['recent_recy']>700, ['full_name']]
+#df_eda2.loc[df_eda2['recent_recy']>700, ['full_name']]
 
 #college conference and exp
 sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
@@ -351,6 +351,8 @@ svr_param_grid = {'svr__C': [1.0],
 
 #cross validation for svr
 svr_model = perform_modeling(svr_pipe, svr_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
+#store the svr_rmse
+svr_rmse_cv = np.sqrt(svr_model.best_score_)
 
 
 
