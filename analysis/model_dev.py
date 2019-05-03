@@ -303,6 +303,15 @@ preprocess_pipe_std = Pipeline(steps=[('subset_data', ColumnSelector(columns=all
 # =============================================================================
 # Modeling
 # =============================================================================
+#Linear Regression
+
+
+
+#kNN
+
+
+
+
 #Random Forest
 #modeling pipeline
 rf_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
@@ -353,7 +362,6 @@ svr_param_grid = {'svr__C': [1.0],
 svr_model = perform_modeling(svr_pipe, svr_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
 #store the svr_rmse
 svr_rmse_cv = np.sqrt(svr_model.best_score_)
-
 
 
 # =============================================================================
