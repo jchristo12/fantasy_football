@@ -17,6 +17,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
 import sklearn.metrics as metrics
 
 #other imports
@@ -312,6 +313,11 @@ print('Best parameters: %s' %xgb_grid.best_params_)
 xgb_model = rf_pipe.fit(train_wr, y_train)
 xgb_y_pred = xgb_model.predict(test_wr)
 xgb_rmse = np.sqrt(metrics.mean_squared_error(y_test, xgb_y_pred))
+
+
+#SVR
+svr_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
+                            ('svr', SVR(kernel='rbf', C=1.0, epsilon=0.1))])
 
 
 # =============================================================================
