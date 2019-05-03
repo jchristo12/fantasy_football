@@ -123,14 +123,14 @@ class TypeSelector(BaseEstimator, TransformerMixin):
 
 class RemoveMissingData(BaseEstimator, TransformerMixin):
     """Remove features where the percentage of rows with missing data is above a threshold"""
-    def __init__(self, cols):
-        self.cols = cols
+    def __init__(self, threshold=0.25):
+        self.threshold = threshold
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        output = remove_missing_data(data=X, cols=self.cols)
+        output = remove_missing_data(data=X, threshold=self.threshold)
         return output
 
 
