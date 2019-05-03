@@ -38,16 +38,25 @@ def divide_by_pos_wk(data, pos, wk):
     df = data[(data['pos1']==pos) & (data['wk']==wk)]
     return df
 
-def remove_missing_data(data, threshold=0.25):
+def missing_data_columns(data, threshold=0.25):
     """
-    Remove data that has more than the threshold % of missing values
+    Store columns that have more than a threshold percent of total missing data
     """
     #find % of total rows with missing data
     missing_data = missing_data_percent(data)
     #list all of the columns that have missing data
     missing_cols = list(missing_data[missing_data > threshold].sort_values(ascending=False).index)
     #drop the columns that have missing values above threshold
-    result = data.drop(missing_cols, axis=1, inplace=False)
+    #result = data.drop(missing_cols, axis=1, inplace=False)
+    
+    return missing_cols
+
+def remove_missing_data(data, threshold=0.25):
+    """Drop the columns with too much missing data"""
+    #cols with too much missing data
+    cols = missing_data_columns(data, threshold=threshold)
+    #drop the columns
+    result = data.drop(cols, axis=1)
     
     return result
 
@@ -114,14 +123,14 @@ class TypeSelector(BaseEstimator, TransformerMixin):
 
 class RemoveMissingData(BaseEstimator, TransformerMixin):
     """Remove features where the percentage of rows with missing data is above a threshold"""
-    def __init__(self, threshold=0.25):
-        self.threshold = threshold
+    def __init__(self, cols):
+        self.cols = cols
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        output = remove_missing_data(data=X, threshold=self.threshold)
+        output = remove_missing_data(data=X, cols=self.cols)
         return output
 
 
@@ -154,10 +163,10 @@ df_clean2 = df_clean2.astype(col_dtypes_alt)
 #remove stat columns that we won't know at time of analysis
 drop_stat_cols = list(df_clean2.loc[:, 'pa':'tdret'].columns)
 #addl columns to drop
-more_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
+id_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
 addl_drop_cols = ['dob', 'udog', 'nflid', 'surf', 'ptsv', 'ptsh', 'h', 'v']
 #combine all columns to drop
-all_drop_cols = drop_stat_cols + addl_drop_cols + more_drop_cols
+manual_drop_cols = drop_stat_cols + addl_drop_cols + id_drop_cols
 #find the columns to use in analysis
 #cols_to_use = list(set(list(df_clean2.columns)).difference(all_drop_cols))
 
@@ -191,17 +200,16 @@ for w in df_vet['wk'].unique():
 df_eda = pd.concat(all_train_df, axis=0)
 
 #drop columns
-df_eda1 = df_eda.drop(all_drop_cols, axis=1)
+df_eda1 = df_eda.drop(manual_drop_cols, axis=1)
+#remove columns with too much missing data
+df_eda2 = remove_missing_data(df_eda1)
+eda_missing = missing_data_percent(df_eda1)
+eda_missing[eda_missing>0]
 
 #separate numeric and categorical variables
 num_cols, cat_cols = col_type_split(df_eda1)
 #store summary statistics of interest
 summ_stats = ['count', 'min', 'max', 'median', 'mean', 'std']
-
-#remove columns with too much missing data
-df_eda2 = remove_missing_data(df_eda1)
-eda_missing = missing_data_percent(df_eda1)
-eda_missing[eda_missing>0]
 
 #boxplot of gen_cond types and f_pts
 sb.boxplot(x='gen_cond', y='f_pts', data=df_eda2)
@@ -227,7 +235,10 @@ sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 # =============================================================================
 # Setup Pipelines
 # =============================================================================
-#impute the rest of the data    
+#Store columns to drop due to too much missing data
+miss_cols = missing_data_columns(train_wr, threshold=0.25)
+all_drop_cols = manual_drop_cols + miss_cols
+
 #Build simple imputers for both numeric and categorical features
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
 cat_impute = SimpleImputer(missing_values=np.NaN, strategy='constant', fill_value='missing')
@@ -308,3 +319,25 @@ xgb_rmse = np.sqrt(metrics.mean_squared_error(y_test, xgb_y_pred))
 # Testing Grounds
 # =============================================================================
 pd.Series(rf_pipe.named_steps['rf'].feature_importances_).sort_values(ascending=False)
+
+#test RemoveMissingData
+testing = train_wr.copy()
+victim = test_wr.copy()
+victim.loc[(victim['wdir']=='CALM') | (victim['wdir']=='W'), 'wdir'] = np.NaN
+
+miss_test = missing_data_percent(testing)
+miss_test[miss_test>0]
+
+miss_victim = missing_data_percent(victim)
+miss_victim[miss_victim>0]
+
+
+remove = RemoveMissingData(threshold=0.25)
+remove_model = remove.fit(testing)
+
+result = remove_model.transform(testing)
+'wdir' in list(result.columns)
+
+test_pipe = Pipeline(steps=[('remove_miss', RemoveMissingData(threshold=0.25))])
+
+result2 = test_pipe.fit(testing)
