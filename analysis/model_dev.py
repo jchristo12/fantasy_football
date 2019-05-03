@@ -7,7 +7,7 @@ from python_pkg import python_udf as udf
 import matplotlib.pyplot as plt
 import random
 import time
-import feature_analysis
+#import feature_analysis
 
 #sklearn imports
 from sklearn.base import TransformerMixin, BaseEstimator
@@ -129,6 +129,7 @@ class RemoveMissingData(BaseEstimator, TransformerMixin):
 # Data Setup
 # =============================================================================
 #import the data
+#df = feature_analysis.main()
 df = pd.read_csv('https://github.com/jchristo12/fantasy_football/blob/master/data/full_data.csv?raw=true')
 
 #create home_away categorical variable
@@ -221,6 +222,7 @@ df_eda2.loc[df_eda2['recent_recy']>700, ['full_name']]
 #college conference and exp
 sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
 sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
+
 
 # =============================================================================
 # Setup Pipelines
