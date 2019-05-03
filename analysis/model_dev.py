@@ -264,7 +264,6 @@ mse = metrics.make_scorer(metrics.mean_squared_error)
 #preprocessing pipeline
 preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
                                 ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
-                                ('remove_missing', RemoveMissingData(threshold=0.25)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
                                                                                 ('categorical_data', cat_pipe)],))])
 
