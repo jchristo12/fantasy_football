@@ -148,12 +148,6 @@ def main():
     player_rolling_sort = pd.concat([player_sorted, last_stats, recent_stats, seas_stats, career_stats], axis=1)
 
 
-    #Defensive Team feature
-    #create a new categorical column of the defensive team
-    player_rolling_sort['def_team'] = pd.Series(np.where(player_rolling_sort['team'] == player_rolling_sort['h'], player_rolling_sort['v'],
-                                             player_rolling_sort['h']), dtype='category')
-
-
     #Add Age Feature
     #strip out the year from DOB
     dob_year = player_rolling_sort['dob'].apply(lambda x: int(str(x[-4:])))
@@ -235,6 +229,12 @@ def main():
 
     #add variables that require merged data
     full_df['udog_binary'] = full_df['team'].eq(full_df['udog'])
+
+
+    #Defensive Team feature
+    #create a new categorical column of the defensive team
+    full_df['def_team'] = pd.Series(np.where(full_df['team'] == full_df['h'], full_df['v'],
+                                             full_df['h']), dtype='category')
 
 
     # =============================================================================
