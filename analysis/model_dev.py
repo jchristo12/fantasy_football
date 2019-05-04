@@ -19,6 +19,7 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
+from sklearn.decomposition import PCA
 import sklearn.metrics as metrics
 
 #other imports
@@ -251,6 +252,20 @@ sb.scatterplot(x='recent_recy', y='f_pts', data=df_eda2)
 #college conference and exp
 sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
 sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
+
+
+#PCA
+df_eda_stats = df_eda2.loc[:, 'last_pa':'last_ret_to_td'] #112 total features
+#clean up the data set for PCA
+df_eda_stats.loc[np.isinf(df_eda_stats['last_yds_per_rec']), 'last_yds_per_rec'] = -9
+#standardize the data
+df_eda_stats_std = pd.DataFrame(StandardScaler().fit_transform(df_eda_stats), columns=list(df_eda_stats.columns))
+#build the PCA object
+eda_pca = PCA(random_state=212)
+pca_model = eda_pca.fit_transform(df_eda_stats_std)
+total_comp_to_use = np.argmax(np.cumsum(eda_pca.explained_variance_ratio_)>.8) + 1
+
+sb.lineplot(x=range(1, 113), y=np.cumsum(eda_pca.explained_variance_ratio_), legend='brief')
 
 
 # =============================================================================
