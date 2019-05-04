@@ -315,7 +315,7 @@ all_drop_cols = manual_drop_cols + miss_cols
 
 #Build simple imputers for both numeric and categorical features
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
-cat_impute = SimpleImputer(missing_values=np.NaN, strategy='constant', fill_value='missing')
+cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
 
 #one hot encoder for categorical variables
 cat_onehotencode = OneHotEncoder()
