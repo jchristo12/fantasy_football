@@ -334,6 +334,8 @@ cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
                             ('onehotencode', cat_onehotencode)])
 
 #prepare the response data
+x_train = train_wr.drop('f_pts', axis=1)
+x_test = test_wr.drop('f_pts', axis=1)
 y_train = train_wr['f_pts']
 y_test = test_wr['f_pts']
 
@@ -342,13 +344,13 @@ mse = metrics.make_scorer(metrics.mean_squared_error)
 
 #preprocessing pipeline
 preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
-                                ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
+                                #('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
                                                                                 ('categorical_data', cat_pipe)],))])
 
 #preprocessing pipeline with Standardizer
 preprocess_pipe_std = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
-                                        ('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
+                                        #('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                         ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe_std),
                                                                                         ('categorical_data', cat_pipe)],))])
 
@@ -379,7 +381,7 @@ rf_start = time.time()
 #set the random number seed
 random.seed(212)
 #CV of random forest model using GridSearchCV
-rf_model = perform_modeling(rf_pipe, rf_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
+rf_model = perform_modeling(rf_pipe, rf_param_grid, cv=10, score=mse, train=x_train, y_train=y_train)
 #stop the stopwatch
 rf_end = time.time()
 #RMSE of best RF model
@@ -398,7 +400,7 @@ xgb_param_grid = {'xgb__max_depth': [2, 3, 5, 6],
                     'xgb__eta': [0.1, 0.3, 0.5, 0.9]}
 
 #Cross validation for XGB model
-xgb_model = perform_modeling(xgb_pipe, xgb_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
+xgb_model = perform_modeling(xgb_pipe, xgb_param_grid, cv=10, score=mse, train=x_train, y_train=y_train)
 #Store mean CV RMSE score
 xgb_rmse_cv = np.sqrt(xgb_model.best_score_)
 
@@ -418,7 +420,7 @@ svr_param_grid = {'svr__C': [1.0],
                     'svr__epsilon': [0.1]}
 
 #cross validation for svr
-svr_model = perform_modeling(svr_pipe, svr_param_grid, cv=10, score=mse, train=train_wr, y_train=y_train)
+svr_model = perform_modeling(svr_pipe, svr_param_grid, cv=10, score=mse, train=x_train, y_train=y_train)
 #store the svr_rmse
 svr_rmse_cv = np.sqrt(svr_model.best_score_)
 
