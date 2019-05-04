@@ -107,6 +107,27 @@ def parse_lagged_stats(data, prefix, threshold1, threshold2):
     drop = list(set(list(data.loc[:, prefix+'_pa':prefix+'_tdret'].columns)) - set(keep))
     return drop
 
+def find_n_comps_to_use(data, threshold, rand_state, scaler=None):
+    """
+    Creates a PCA object and find the number of components to use.\n
+        Returns an integer (i.e. number of components to use in PCA)
+    """
+    #if a scaler is not passed, create one and use it
+    #PCA performs much better when the data is scaled
+    if scaler == None:
+        df = StandardScaler().fit_transform(data)
+    else:
+        df = scaler.fit_transform(data)
+    
+    #create the PCA object
+    pca = PCA(random_state=rand_state)
+    #fit and transform the data used PCA instance
+    #model = pca.fit_transform(df)
+    #find the number of components where the explained ration is above a threshold
+    comps_to_use = np.argmax(np.cumsum(pca.explained_variance_ratio_)>threshold) + 1
+
+    return comps_to_use
+
 
 # =============================================================================
 # Transformer Classes
@@ -276,17 +297,13 @@ for c in lagged_stats_categories:
 
 #PCA
 df_eda_stats = df_eda2.loc[:, 'last_pa':'last_ret_to_td'] #112 total features
-df_eda_stats = df_eda_stats.drop(lagged_stats_drop, axis=1)
+df_eda_stats = df_eda_stats.drop(lagged_stats_drop+['age', 'gen_dv'], axis=1)
 #clean up the data set for PCA
 df_eda_stats.loc[np.isinf(df_eda_stats['last_yds_per_rec']), 'last_yds_per_rec'] = -9
-#standardize the data
-df_eda_stats_std = pd.DataFrame(StandardScaler().fit_transform(df_eda_stats), columns=list(df_eda_stats.columns))
-#build the PCA object
-eda_pca = PCA(random_state=212)
-pca_model = eda_pca.fit_transform(df_eda_stats_std)
-total_comp_to_use = np.argmax(np.cumsum(eda_pca.explained_variance_ratio_)>.8) + 1
+#calc the total components to use
+comps_to_use = find_n_comps_to_use(df_eda_stats, 0.8, 212)
 
-sb.lineplot(x=range(1, 113), y=np.cumsum(eda_pca.explained_variance_ratio_), legend='brief')
+#sb.lineplot(x=range(1, eda_pca.n_components_+1), y=eda_pca.explained_variance_ratio_)
 
 
 # =============================================================================
