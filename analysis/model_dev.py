@@ -97,6 +97,16 @@ def perform_modeling(model_pipeline, param_grid, cv, score, train, y_train):
 
     return fit_cv
 
+def parse_lagged_stats(data, prefix, threshold1, threshold2):
+    """
+    Find the columns that don't correlate highly to the response variable. To be used with the lagged stats categories.\n
+        Returns a list of columns to drop from modeling.
+    """
+    df = udf.corr_to_df_summary(pd.concat([data.loc[:, prefix+'_pa':prefix+'_tdret'], data['f_pts']], axis=1), threshold=threshold1).reset_index()
+    keep = list(df[(df['Var2']=='f_pts') & (df['Pearson R']>threshold2)]['Var1'])
+    drop = list(set(list(data.loc[:, prefix+'_pa':prefix+'_tdret'].columns)) - set(keep))
+    return drop
+
 
 # =============================================================================
 # Transformer Classes
@@ -162,8 +172,8 @@ class RemoveMissingData(BaseEstimator, TransformerMixin):
 # =============================================================================
 #import the data
 #df = feature_analysis.main()
-#df1 = model_df
-df = pd.read_csv('https://github.com/jchristo12/fantasy_football/blob/master/data/full_data.csv?raw=true')
+df = model_df
+#df1 = pd.read_csv('https://github.com/jchristo12/fantasy_football/blob/master/data/full_data.csv?raw=true')
 
 #create home_away categorical variable
 df['home_away'] = np.where(df['team']==df['h'], 'home', 'away')
@@ -254,6 +264,9 @@ sb.scatterplot(x='recent_recy', y='f_pts', data=df_eda2)
 #college conference and exp
 sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
 sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
+
+#correlation of career stats
+career_stats_drop2 = parse_lagged_stats(df_eda2, 'career', 0, 0.2)
 
 
 #PCA
@@ -413,6 +426,8 @@ result = remove_model.transform(testing)
 test_pipe = Pipeline(steps=[('remove_miss', RemoveMissingData(threshold=0.25))])
 
 result2 = test_pipe.fit(testing)
+
+
 
 #test inserting steps to pipeline
 numeric_pipe.steps.insert(1, ['standardize', StandardScaler()])
