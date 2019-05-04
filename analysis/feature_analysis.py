@@ -13,7 +13,18 @@ def main():
     # =============================================================================
     # Help functions
     # =============================================================================
+    def replace_ratio_values(calc, prefix, data=data, num_col=num_col):
+        """Helper function to be used in the 'ratio_stat' function"""
+        #create the map of value to replace and with what
+        replace_dict = {np.inf: data[prefix + num_col],
+                        -np.inf: data[prefix + num_col],
+                        np.NaN: 0}
+        #perform the replacement using the replacement dictionary
+        col_result = calc.replace(to_replace=replace_dict)
+        return col_result
+    
     def ratio_stat(num_col, denom_col, new_col, data):
+        """Calculate the ratio statistic for all of the statistic versions (i.e. rolling, last, career, seas)"""
         #import necessary packages to run the function
         try:
             import numpy as np
@@ -21,22 +32,22 @@ def main():
         except:
             print('Necessary packages not installed. Please install:')
             print('numpy & pandas')
-            
+
         #last game stat calc
         last_col_calc = data['last_' + num_col] / data['last_' + denom_col]
-        last_col = last_col_calc.replace([np.inf, np.NaN], [data['last_' + num_col], 0])#.reset_index(drop=True)
+        last_col = replace_ratio_values(last_col_calc, 'last_')
         
         #career stat calc
         career_col_calc = data['career_' + num_col] / data['career_' + denom_col]
-        career_col = career_col_calc.replace([np.inf, np.NaN], [data['career_' + num_col], 0])#.reset_index(drop=True)
+        career_col = replace_ratio_values(career_col_calc, 'career_')
         
         #season stat calc
         seas_col_calc = data['seas_' + num_col] / data['seas_' + denom_col]
-        seas_col = seas_col_calc.replace([np.inf, np.NaN], [data['seas_' + num_col], 0])#.reset_index(drop=True)
+        seas_col = replace_ratio_values(seas_col_calc, 'seas_')
         
         #rolling game stat calc
         rolling_col_calc = data['recent_' + num_col] / data['recent_' + denom_col]
-        rolling_col = rolling_col_calc.replace([np.inf, np.NaN], [data['recent_' + num_col], 0])#.reset_index(drop=True)    
+        rolling_col = replace_ratio_values(rolling_col_calc, 'recent_')
         
         #concate the series together
         added_df = pd.concat([data, career_col, seas_col, rolling_col, last_col], axis=1)
