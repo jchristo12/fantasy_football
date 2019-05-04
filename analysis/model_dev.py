@@ -97,6 +97,7 @@ def perform_modeling(model_pipeline, param_grid, cv, score, train, y_train):
 
     return fit_cv
 
+
 # =============================================================================
 # Transformer Classes
 # =============================================================================
@@ -155,7 +156,7 @@ class RemoveMissingData(BaseEstimator, TransformerMixin):
         output = remove_missing_data(data=X, threshold=self.threshold)
         return output
 
-set(list(df.columns)) - set(list(df1.columns))
+
 # =============================================================================
 # Data Setup
 # =============================================================================
