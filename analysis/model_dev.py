@@ -320,13 +320,20 @@ cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
 #StandardScaler instance
 std_scaler = StandardScaler()
 
+#PCA instance
+pca_object = PCA(random_state=212, n_components=comps_to_use)
+#PCA columns to use
+pca_cols = 
+
 #one hot encoder for categorical variables
 cat_onehotencode = OneHotEncoder()
 
 #build different pipelines for numeric and categorical data
 numeric_pipe = Pipeline(steps=[('dtype', TypeSelector(True)),
                                ('impute', numeric_impute),
-                               ('pca', FeatureUnion(transformer_list=[('')])])
+                               ('pca_pipe', Pipeline(steps=[('subset_data', ColumnSelector(columns=???)),
+                                                            ('standardize', std_scaler),
+                                                            ('pca_fit', pca_object)]))])
 
 #numeric pipeline with standardizer
 numeric_pipe_std = Pipeline(steps=[('dtype', TypeSelector(True)),
