@@ -265,12 +265,18 @@ sb.scatterplot(x='recent_recy', y='f_pts', data=df_eda2)
 sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
 sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 
-#correlation of career stats
-career_stats_drop2 = parse_lagged_stats(df_eda2, 'career', 0, 0.2)
+#lagged stats to drop
+lagged_stats_categories = ['last', 'recent', 'career', 'seas']
+lagged_stats_drop = []
+for c in lagged_stats_categories:
+    stats_drop = parse_lagged_stats(df_eda2, c, 0, 2)
+    for i in stats_drop:
+        lagged_stats_drop.append(i)
 
 
 #PCA
 df_eda_stats = df_eda2.loc[:, 'last_pa':'last_ret_to_td'] #112 total features
+df_eda_stats = df_eda_stats.drop(lagged_stats_drop, axis=1)
 #clean up the data set for PCA
 df_eda_stats.loc[np.isinf(df_eda_stats['last_yds_per_rec']), 'last_yds_per_rec'] = -9
 #standardize the data
