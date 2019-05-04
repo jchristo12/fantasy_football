@@ -155,13 +155,13 @@ class RemoveMissingData(BaseEstimator, TransformerMixin):
         output = remove_missing_data(data=X, threshold=self.threshold)
         return output
 
-
+set(list(df.columns)) - set(list(df1.columns))
 # =============================================================================
 # Data Setup
 # =============================================================================
 #import the data
 #df = feature_analysis.main()
-#df = model_df
+#df1 = model_df
 df = pd.read_csv('https://github.com/jchristo12/fantasy_football/blob/master/data/full_data.csv?raw=true')
 
 #create home_away categorical variable
