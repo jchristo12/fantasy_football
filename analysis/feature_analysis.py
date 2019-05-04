@@ -16,11 +16,16 @@ def main():
     def replace_ratio_values(calc, prefix, data, num_col):
         """Helper function to be used in the 'ratio_stat' function"""
         #create the map of value to replace and with what
-        replace_dict = {np.inf: data[prefix + num_col],
-                        -np.inf: data[prefix + num_col],
-                        np.NaN: 0}
+        #replace_dict = {np.inf: data[prefix + num_col],
+        #                -np.inf: data[prefix + num_col],
+        #                np.NaN: 0}
+
+        #alternate method to replace - lists
+        to_replace = [np.inf, -np.inf, np.NaN]
+        values = [data[prefix + num_col], data[prefix + num_col], 0]
+        
         #perform the replacement using the replacement dictionary
-        col_result = calc.replace(to_replace=replace_dict)
+        col_result = calc.replace(to_replace=to_replace, value=values)
         return col_result
     
     def ratio_stat(num_col, denom_col, new_col, data):
