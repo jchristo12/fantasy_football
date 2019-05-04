@@ -317,16 +317,20 @@ all_drop_cols = manual_drop_cols + miss_cols
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
 cat_impute = SimpleImputer(missing_values=np.NaN, strategy='most_frequent')
 
+#StandardScaler instance
+std_scaler = StandardScaler()
+
 #one hot encoder for categorical variables
 cat_onehotencode = OneHotEncoder()
 
 #build different pipelines for numeric and categorical data
 numeric_pipe = Pipeline(steps=[('dtype', TypeSelector(True)),
-                               ('impute', numeric_impute)])
+                               ('impute', numeric_impute),
+                               ('pca', FeatureUnion(transformer_list=[('')])])
 
 #numeric pipeline with standardizer
 numeric_pipe_std = Pipeline(steps=[('dtype', TypeSelector(True)),
-                                    ('standardize', StandardScaler()),
+                                    ('standardize', std_scaler),
                                     ('impute', numeric_impute)])
 
 cat_pipe = Pipeline(steps=[('dtype', TypeSelector(False)),
