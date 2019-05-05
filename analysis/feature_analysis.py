@@ -84,7 +84,42 @@ def prep_for_modeling():
             
         return data
 
-    
+    def depth_chart(data, pos_grid, asc=False, add_to_df=False):
+        """
+        Calculate depth chart positions for each player by week, team, seas, and position\n
+            Option to return the original dataframe with added pos_rank feature or a list of rank df's
+        """
+        #make sure asc argument is boolean
+        assert isinstance(asc, bool)
+        #make sure pos_grid is a dictionary
+        assert isinstance(pos_grid, dict)
+        #make sure add_to_df is boolean
+        assert isinstance(add_to_df, bool)
+        
+        #store the positions
+        keys = list(pos_grid.keys())
+        #initialize list for all ranked dataframes
+        results = []
+        
+        for p in keys:
+            #subset data
+            df = data[data['pos1']==p]
+            #group the data by team, seas, and wk
+            grouped = df.groupby(by=['team', 'seas', 'wk'], as_index=False, sort=False)
+            #rank based on specified stat
+            ranked = grouped[pos_grid[p]].rank(method='min', ascending=asc)
+            ranked.columns = [p+'_rank']
+            
+            #add data frame to list
+            results.append(ranked)
+        
+        #if true, returns the original df with added pos rank column
+        #if false, returns the list of data frames with ranks for each pos
+        if add_to_df == False:
+            return results
+        else:
+            output_df = add_rankings(data, pos_grid, results)
+            return output_df
 
 
     # =============================================================================
