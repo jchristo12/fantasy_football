@@ -475,3 +475,5 @@ numeric_pipe.steps[len(numeric_pipe.steps)-1][0]
 
 
 #Test ColumnTransformer
+ColumnTransformer(transformers=[('pca_cols', pca_pipe, pca_cols),
+                                ('non_pca_cols', None, non_pca_cols)])
