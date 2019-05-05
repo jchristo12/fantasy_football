@@ -99,14 +99,20 @@ def perform_modeling(model_pipeline, param_grid, cv, score, train, y_train):
 
     return fit_cv
 
-def parse_lagged_stats(data, prefix, threshold1, threshold2):
+def parse_uncorr_stats(data, threshold1, threshold2, cols=None, prefix=None):
     """
     Find the columns that don't correlate highly to the response variable. To be used with the lagged stats categories.\n
         Returns a list of columns to drop from modeling.
     """
-    df = udf.corr_to_df_summary(pd.concat([data.loc[:, prefix+'_pa':prefix+'_tdret'], data['f_pts']], axis=1), threshold=threshold1).reset_index()
-    keep = list(df[(df['Var2']=='f_pts') & (df['Pearson R']>threshold2)]['Var1'])
-    drop = list(set(list(data.loc[:, prefix+'_pa':prefix+'_tdret'].columns)) - set(keep))
+    if prefix != None:
+        df = udf.corr_to_df_summary(pd.concat([data.loc[:, prefix+'_pa':prefix+'_tdret'], data['f_pts']], axis=1), threshold=threshold1).reset_index()
+        keep = list(df[(df['Var2']=='f_pts') & (df['Pearson R']>threshold2)]['Var1'])
+        drop = list(set(list(data.loc[:, prefix+'_pa':prefix+'_tdret'].columns)) - set(keep))
+    else:
+        df = udf.corr_to_df_summary(pd.concat([data[cols], data['f_pts']], axis=1), threshold=threshold1).reset_index()
+        keep = list(df[(df['Var2']=='f_pts') & (df['Pearson R']>threshold2)]['Var1'])
+        drop = list(set(cols) - set(keep))
+
     return drop
 
 def find_n_comps_to_use(data, threshold, rand_state, scaler=None):
@@ -490,3 +496,8 @@ numeric_pipe.steps[len(numeric_pipe.steps)-1][0]
 #Test ColumnTransformer
 ColumnTransformer(transformers=[('pca_cols', pca_pipe, pca_cols),
                                 ('non_pca_cols', None, non_pca_cols)])
+
+
+#test correlation
+test_df = udf.corr_to_df_summary(pd.concat([df_eda2[ratio_stats], df_eda2['f_pts']], axis=1), threshold=0).reset_index()
+test_keep = list(test_df[(test_df['Var2']=='f_pts') & (test_df['Pearson R']>0.2)]['Var1'])
