@@ -245,7 +245,7 @@ def prep_for_modeling():
                         'WR': 'recent_trg',
                         'TE': 'recent_trg'}
     
-    player_rolling_sort = 
+    player_rolling_sort = depth_chart(player_rolling_sort, depth_chart_grid, asc=False, add_to_df=True)
 
 
 
