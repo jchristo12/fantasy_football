@@ -148,20 +148,6 @@ def prep_for_modeling():
     player_rolling_sort = pd.concat([player_sorted, last_stats, recent_stats, seas_stats, career_stats], axis=1)
 
 
-    #Add Age Feature
-    #strip out the year from DOB
-    dob_year = player_rolling_sort['dob'].apply(lambda x: int(str(x[-4:])))
-    #add age to dataframe
-    player_rolling_sort['age'] = player_rolling_sort['seas'].astype(int) - dob_year
-
-
-    #College Conference combination
-    #store the new categories
-    power_five = ['Big 12', 'Big Ten', 'Atlantic Coast (ACC)', 'Southeastern (SEC)', 'Pacific 12']
-    #if conference is in the power 5, then leave it. Otherwise, call it 'Other'
-    player_rolling_sort['gen_dv'] = pd.Series(np.where(player_rolling_sort['dv'].isin(power_five), player_rolling_sort['dv'], 'Other'), dtype='category')
-
-
     #Ratio Stat features
     #Passing
     #Passing completion
@@ -193,6 +179,19 @@ def prep_for_modeling():
     #returns to td's
     player_rolling_sort = ratio_stat('ret', 'tdret', 'ret_to_td', data=player_rolling_sort)
 
+
+    #Add Age Feature
+    #strip out the year from DOB
+    dob_year = player_rolling_sort['dob'].apply(lambda x: int(str(x[-4:])))
+    #add age to dataframe
+    player_rolling_sort['age'] = player_rolling_sort['seas'].astype(int) - dob_year
+
+
+    #College Conference combination
+    #store the new categories
+    power_five = ['Big 12', 'Big Ten', 'Atlantic Coast (ACC)', 'Southeastern (SEC)', 'Pacific 12']
+    #if conference is in the power 5, then leave it. Otherwise, call it 'Other'
+    player_rolling_sort['gen_dv'] = pd.Series(np.where(player_rolling_sort['dv'].isin(power_five), player_rolling_sort['dv'], 'Other'), dtype='category')
 
 
     # =============================================================================
