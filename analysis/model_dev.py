@@ -363,13 +363,13 @@ y_test = test_wr['f_pts']
 mse = metrics.make_scorer(metrics.mean_squared_error)
 
 #preprocessing pipeline
-preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
+preprocess_pipe = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols, drop=True)),
                                 #('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                 ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe),
                                                                                 ('categorical_data', cat_pipe)],))])
 
 #preprocessing pipeline with Standardizer
-preprocess_pipe_std = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols)),
+preprocess_pipe_std = Pipeline(steps=[('subset_data', ColumnSelector(columns=all_drop_cols, drop=True)),
                                         #('drop_resp',FunctionTransformer(func=exclude_response, validate=False)),
                                         ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe_std),
                                                                                         ('categorical_data', cat_pipe)],))])
