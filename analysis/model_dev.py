@@ -309,10 +309,9 @@ stats_keep, stats_drop = parse_uncorr_stats(df_eda2, threshold1=0, threshold2=0.
 
 
 #PCA
-df_eda_stats = df_eda2.loc[:, 'last_pa':'last_ret_to_td'] #112 total features
-df_eda_stats = df_eda_stats.drop(lagged_stats_drop+['age', 'gen_dv'], axis=1)
+df_eda_stats = df_eda2[stats_keep] #112 total features
 #clean up the data set for PCA
-df_eda_stats.loc[np.isinf(df_eda_stats['last_yds_per_rec']), 'last_yds_per_rec'] = -9
+#df_eda_stats.loc[np.isinf(df_eda_stats['last_yds_per_rec']), 'last_yds_per_rec'] = -9
 #calc the total components to use
 comps_to_use = find_n_comps_to_use(df_eda_stats, 0.8, 212)
 
