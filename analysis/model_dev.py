@@ -305,23 +305,21 @@ sb.scatterplot(x='recent_recy', y='f_pts', data=df_eda2)
 sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
 sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 
-#lagged stats to drop
-stats_keep, stats_drop = parse_uncorr_stats(df_eda2, threshold1=0, threshold2=0.2, cols=lagged_stats + ratio_stats)
-
 
 #PCA
-df_eda_stats = df_eda2[stats_keep] #112 total features
-#clean up the data set for PCA
-#df_eda_stats.loc[np.isinf(df_eda_stats['last_yds_per_rec']), 'last_yds_per_rec'] = -9
-#calc the total components to use
-comps_to_use = find_n_comps_to_use(df_eda_stats, 0.8, 212)
 
-#sb.lineplot(x=range(1, eda_pca.n_components_+1), y=eda_pca.explained_variance_ratio_)
 
 
 # =============================================================================
 # Setup Pipelines
 # =============================================================================
+#stats features to drop since they don't correlate with response
+stats_keep, stats_drop = parse_uncorr_stats(train_wr, threshold1=0, threshold2=0.2, cols=lagged_stats + ratio_stats)
+#data frame to use for PCA
+df_for_pca = train_wr[stats_keep]
+#calc the total components to use in PCA
+comps_to_use = find_n_comps_to_use(df_for_pca, 0.8, 212)
+
 #Store columns to drop due to too much missing data
 miss_cols = missing_data_columns(train_wr, threshold=0.25)
 all_drop_cols = manual_drop_cols + miss_cols + stats_drop
