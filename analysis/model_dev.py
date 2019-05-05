@@ -212,7 +212,7 @@ df_clean2 = df_clean[df_clean['pos1'].isin(pos_of_interest)]
 col_dtypes = {'category': ['seas', 'wk', 'pos1', 'team', 'udog', 'v', 'h', 'day', 'stad', 'wdir',
                           'surf', 'gen_cond', 'gen_dv', 'def_team', 'home_away']}
 #flip the key and values around so they will work in the argument for 'astype()'
-col_dtypes_alt = {old: new for new, old_all in col_dtypes.items() for old in old_all}
+col_dtypes_alt = udf.dict_key_value_flip(col_dtypes)
 #make the change to column type
 df_clean2 = df_clean2.astype(col_dtypes_alt)
 
