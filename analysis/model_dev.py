@@ -289,6 +289,10 @@ summ_stats = ['count', 'min', 'max', 'median', 'mean', 'std']
 sb.boxplot(x='gen_cond', y='f_pts', data=df_eda2)
 df_eda2.groupby(by='gen_cond').agg({'f_pts': summ_stats})
 
+#depth chart and f_pts
+sb.boxplot(x='pos_rank', y='f_pts', data=df_eda2)
+df_eda2.groupby(by='pos_rank').agg({'f_pts': summ_stats})
+
 #home_away and f_pts
 sb.boxplot(x='home_away', y='f_pts', data=df_eda2, hue='udog_binary')
 df_eda2.groupby(by=['home_away', 'udog_binary']).agg({'f_pts': summ_stats})
@@ -493,7 +497,3 @@ numeric_pipe.steps[len(numeric_pipe.steps)-1][0]
 #Test ColumnTransformer
 ColumnTransformer(transformers=[('pca_cols', pca_pipe, pca_cols),
                                 ('non_pca_cols', None, non_pca_cols)])
-
-
-#test
-list(train_wr[all_stats][stats_keep].columns)
