@@ -113,7 +113,7 @@ def parse_uncorr_stats(data, threshold1, threshold2, cols=None, prefix=None):
         keep = list(df[(df['Var2']=='f_pts') & (df['Pearson R']>threshold2)]['Var1'])
         drop = list(set(cols) - set(keep))
 
-    return drop
+    return keep, drop
 
 def find_n_comps_to_use(data, threshold, rand_state, scaler=None):
     """
@@ -305,7 +305,7 @@ sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
 sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 
 #lagged stats to drop
-stats_drop = parse_uncorr_stats(df_eda2, threshold1=0, threshold2=0.2, cols=lagged_stats + ratio_stats)
+stats_keep, stats_drop = parse_uncorr_stats(df_eda2, threshold1=0, threshold2=0.2, cols=lagged_stats + ratio_stats)
 
 
 #PCA
