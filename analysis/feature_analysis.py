@@ -63,6 +63,29 @@ def prep_for_modeling():
 
         return added_df
 
+    def add_depth_chart_rank(data, pos_grid, ranks):
+        """
+        Add the rankings to the orig dataframe. 
+            Returns the orig data frame with added rank column
+        """
+        #create the feature in the dataframe
+        data['pos_rank'] = np.NaN
+        #initialize the indexer
+        x = 0
+        
+        #loop through all of the calculated ranks (by pos) and add to dataframe
+        for d in ranked:
+            keys = list(pos_grid.keys())
+            data.loc[df['pos1']==keys[x], 'pos_rank'] = d.values
+            x += 1
+        
+        #convert ranks to categoricals
+        data = data.astype({'pos_rank': 'category'})
+            
+        return data
+
+    
+
 
     # =============================================================================
     # Read in the data
@@ -178,6 +201,17 @@ def prep_for_modeling():
     player_rolling_sort = ratio_stat('rety', 'ret', 'avg_ret', data=player_rolling_sort)
     #returns to td's
     player_rolling_sort = ratio_stat('ret', 'tdret', 'ret_to_td', data=player_rolling_sort)
+
+
+    #Depth Chart (based on rolling 4 game stats)
+    #create grid
+    depth_chart_grid = {'QB': 'recent_pa',
+                        'RB': 'recent_ra',
+                        'WR': 'recent_trg',
+                        'TE': 'recent_trg'}
+    
+    player_rolling_sort = 
+
 
 
     #Add Age Feature
