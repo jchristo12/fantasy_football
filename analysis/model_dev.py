@@ -313,16 +313,20 @@ sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 # =============================================================================
 # Setup Pipelines
 # =============================================================================
+#Store columns to drop due to too much missing data
+miss_cols = missing_data_columns(train_wr, threshold=0.25)
+
 #stats features to drop since they don't correlate with response
-stats_keep, stats_drop = parse_uncorr_stats(train_wr, threshold1=0, threshold2=0.2, cols=lagged_stats + ratio_stats)
+stats_keep, stats_drop = parse_uncorr_stats(train_wr.drop(miss_cols, axis=1), threshold1=0, threshold2=0.2,
+                                            cols=lagged_stats + ratio_stats)
 #data frame to use for PCA
 df_for_pca = train_wr[stats_keep]
 #calc the total components to use in PCA
 comps_to_use = find_n_comps_to_use(df_for_pca, 0.8, 212)
 
-#Store columns to drop due to too much missing data
-miss_cols = missing_data_columns(train_wr, threshold=0.25)
+#all features that won't be used in modeling
 all_drop_cols = manual_drop_cols + miss_cols + stats_drop
+
 
 #Build simple imputers for both numeric and categorical features
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
@@ -401,7 +405,7 @@ rf_pipe = Pipeline(steps=[('preprocess', preprocess_pipe),
 
 #build the parameter grid to be used in GridSearch class
 rf_param_grid = {'rf__max_depth': [3, 5, 7, 10, 15],
-                 'rf__n_estimators': [1, 3, 5, 10, 20, 50, 100, 200]}
+                 'rf__n_estimators': [1, 3, 5, 10, 20, 50, 100]}
 
 #start the stopwatch
 rf_start = time.time()
