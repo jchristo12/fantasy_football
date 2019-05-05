@@ -323,8 +323,12 @@ std_scaler = StandardScaler()
 
 #PCA instance
 pca_object = PCA(random_state=212, n_components=comps_to_use)
-#PCA columns to use
+#PCA columns to use and not use
 pca_cols = []
+non_pca_cols = []
+#pca pipeline
+pca_pipe = Pipeline(steps=[('standardize', std_scaler),
+                            ('pca_fit', pca_object)])
 
 #one hot encoder for categorical variables
 cat_onehotencode = OneHotEncoder()
@@ -332,9 +336,8 @@ cat_onehotencode = OneHotEncoder()
 #build different pipelines for numeric and categorical data
 numeric_pipe = Pipeline(steps=[('dtype', TypeSelector(True)),
                                ('impute', numeric_impute),
-                               ('pca_pipe', Pipeline(steps=[('subset_data', ColumnSelector(columns=???)),
-                                                            ('standardize', std_scaler),
-                                                            ('pca_fit', pca_object)]))])
+                               ('pca', ColumnTransformer(transformers=[('pca_cols', pca_pipe, pca_cols),
+                                                                        ('non_pca_cols', None, non_pca_cols)]))])
 
 #numeric pipeline with standardizer
 numeric_pipe_std = Pipeline(steps=[('dtype', TypeSelector(True)),
@@ -469,3 +472,6 @@ result2 = test_pipe.fit(testing)
 #test inserting steps to pipeline
 numeric_pipe.steps.insert(1, ['standardize', StandardScaler()])
 numeric_pipe.steps[len(numeric_pipe.steps)-1][0]
+
+
+#Test ColumnTransformer
