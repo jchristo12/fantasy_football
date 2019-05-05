@@ -305,12 +305,7 @@ sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
 sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 
 #lagged stats to drop
-lagged_stats_categories = ['last', 'recent', 'career', 'seas']
-lagged_stats_drop = []
-for c in lagged_stats_categories:
-    stats_drop = parse_lagged_stats(df_eda2, c, 0, 0.2)
-    for i in stats_drop:
-        lagged_stats_drop.append(i)
+stats_drop = parse_uncorr_stats(df_eda2, threshold1=0, threshold2=0.2, cols=lagged_stats + ratio_stats)
 
 
 #PCA
@@ -499,5 +494,6 @@ ColumnTransformer(transformers=[('pca_cols', pca_pipe, pca_cols),
 
 
 #test correlation
-test_df = udf.corr_to_df_summary(pd.concat([df_eda2[ratio_stats], df_eda2['f_pts']], axis=1), threshold=0).reset_index()
+test_df = udf.corr_to_df_summary(pd.concat([df_eda2[ratio_stats+lagged_stats], df_eda2['f_pts']], axis=1), threshold=0).reset_index()
 test_keep = list(test_df[(test_df['Var2']=='f_pts') & (test_df['Pearson R']>0.2)]['Var1'])
+list(set(ratio_stats+lagged_stats) - set(test_keep))
