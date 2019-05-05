@@ -205,6 +205,11 @@ df = feature_analysis.prep_for_modeling()
 data_load_finish = time.time()
 print('Data load time: {:.2f} seconds'.format(data_load_finish - data_load_start))
 
+#store groups of stat columns
+orig_stats = list(df.loc[:, 'pa':'tdret'].columns)
+lagged_stats = list(df.loc[:, 'last_pa':'career_tdret'].columns)
+ratio_stats = list(df.loc[:, 'career_comp_pct':'last_ret_to_td'].columns)
+
 #create home_away categorical variable
 df['home_away'] = np.where(df['team']==df['h'], 'home', 'away')
 
@@ -224,13 +229,11 @@ col_dtypes_alt = udf.dict_key_value_flip(col_dtypes)
 #make the change to column type
 df_clean2 = df_clean2.astype(col_dtypes_alt)
 
-#remove stat columns that we won't know at time of analysis
-drop_stat_cols = list(df_clean2.loc[:, 'pa':'tdret'].columns)
 #addl columns to drop
 id_drop_cols = list(df_clean2.loc[:, 'pk':'full_name'])
 addl_drop_cols = ['dob', 'udog', 'nflid', 'surf', 'ptsv', 'ptsh', 'h', 'v']
 #combine all columns to drop
-manual_drop_cols = drop_stat_cols + addl_drop_cols + id_drop_cols
+manual_drop_cols = orig_stats + addl_drop_cols + id_drop_cols
 #find the columns to use in analysis
 #cols_to_use = list(set(list(df_clean2.columns)).difference(all_drop_cols))
 
@@ -332,7 +335,7 @@ std_scaler = StandardScaler()
 #PCA instance
 pca_object = PCA(random_state=212, n_components=comps_to_use)
 #PCA columns to use and not use
-pca_cols = []
+pca_cols = list(train_wr.loc[:, 'last_trg':'career_tdrec'].columns)
 non_pca_cols = []
 #pca pipeline
 pca_pipe = Pipeline(steps=[('standardize', std_scaler),
