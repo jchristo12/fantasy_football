@@ -1,4 +1,4 @@
-def main():
+def prep_for_modeling():
     #import basic packages
     try:
         import pandas as pd
@@ -249,4 +249,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    prep_for_modeling()
