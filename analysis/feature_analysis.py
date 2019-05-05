@@ -118,7 +118,7 @@ def prep_for_modeling():
         if add_to_df == False:
             return results
         else:
-            output_df = add_rankings(data, pos_grid, results)
+            output_df = add_depth_chart_rank(data, pos_grid, results)
             return output_df
 
 
