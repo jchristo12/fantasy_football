@@ -1,3 +1,6 @@
+#change working directory so 'feature_analysis' import works
+import os
+os.chdir('C:/Users/Joe/Projects/fantasy_football/analysis')
 #basic imports
 import pandas as pd
 import math
