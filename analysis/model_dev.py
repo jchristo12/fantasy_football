@@ -215,6 +215,7 @@ print('Data load time: {:.2f} seconds'.format(data_load_finish - data_load_start
 orig_stats = list(df.loc[:, 'pa':'tdret'].columns)
 lagged_stats = list(df.loc[:, 'last_pa':'career_tdret'].columns)
 ratio_stats = list(df.loc[:, 'career_comp_pct':'last_ret_to_td'].columns)
+all_stats = orig_stats + lagged_stats + ratio_stats
 
 #create home_away categorical variable
 df['home_away'] = np.where(df['team']==df['h'], 'home', 'away')
@@ -323,7 +324,7 @@ comps_to_use = find_n_comps_to_use(df_eda_stats, 0.8, 212)
 # =============================================================================
 #Store columns to drop due to too much missing data
 miss_cols = missing_data_columns(train_wr, threshold=0.25)
-all_drop_cols = manual_drop_cols + miss_cols
+all_drop_cols = manual_drop_cols + miss_cols + stats_drop
 
 #Build simple imputers for both numeric and categorical features
 numeric_impute = SimpleImputer(missing_values=np.NaN, strategy='median')
@@ -335,8 +336,8 @@ std_scaler = StandardScaler()
 #PCA instance
 pca_object = PCA(random_state=212, n_components=comps_to_use)
 #PCA columns to use and not use
-pca_cols = list(train_wr.loc[:, 'last_trg':'career_tdrec'].columns)
-non_pca_cols = []
+pca_cols = list(train_wr[all_stats][stats_keep].columns)
+non_pca_cols = list(train_wr.select_dtypes(include=np.number).columns)
 #pca pipeline
 pca_pipe = Pipeline(steps=[('standardize', std_scaler),
                             ('pca_fit', pca_object)])
@@ -349,8 +350,8 @@ cat_onehotencode = OneHotEncoder()
 #build different pipelines for numeric and categorical data
 numeric_pipe = Pipeline(steps=[('dtype', TypeSelector(True)),
                                ('impute', numeric_impute),
-                               ('pca', ColumnTransformer(transformers=[('pca_cols', pca_pipe, pca_cols),
-                                                                        ('non_pca_cols', None, non_pca_cols)]))])
+                               ('pca', ColumnTransformer(transformers=[('pca_cols', pca_pipe, pca_cols)],
+                                                         remainder='passthrough'))])
 
 #numeric pipeline with standardizer
 numeric_pipe_std = Pipeline(steps=[('dtype', TypeSelector(True)),
@@ -492,7 +493,5 @@ ColumnTransformer(transformers=[('pca_cols', pca_pipe, pca_cols),
                                 ('non_pca_cols', None, non_pca_cols)])
 
 
-#test correlation
-test_df = udf.corr_to_df_summary(pd.concat([df_eda2[ratio_stats+lagged_stats], df_eda2['f_pts']], axis=1), threshold=0).reset_index()
-test_keep = list(test_df[(test_df['Var2']=='f_pts') & (test_df['Pearson R']>0.2)]['Var1'])
-list(set(ratio_stats+lagged_stats) - set(test_keep))
+#test
+list(train_wr[all_stats][stats_keep].columns)
