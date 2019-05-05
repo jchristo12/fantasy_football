@@ -337,6 +337,8 @@ non_pca_cols = []
 #pca pipeline
 pca_pipe = Pipeline(steps=[('standardize', std_scaler),
                             ('pca_fit', pca_object)])
+#pca pipeline for standardized data
+#pca_std_pipeline = 
 
 #one hot encoder for categorical variables
 cat_onehotencode = OneHotEncoder()
