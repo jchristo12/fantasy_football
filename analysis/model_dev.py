@@ -123,8 +123,8 @@ def find_n_comps_to_use(data, threshold, rand_state, scaler=None):
     
     #create the PCA object
     pca = PCA(random_state=rand_state)
-    #fit and transform the data used PCA instance
-    #model = pca.fit_transform(df)
+    #fit the PCA instance
+    pca.fit(df)
     #find the number of components where the explained ration is above a threshold
     comps_to_use = np.argmax(np.cumsum(pca.explained_variance_ratio_)>threshold) + 1
 
@@ -299,7 +299,7 @@ sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 lagged_stats_categories = ['last', 'recent', 'career', 'seas']
 lagged_stats_drop = []
 for c in lagged_stats_categories:
-    stats_drop = parse_lagged_stats(df_eda2, c, 0, 2)
+    stats_drop = parse_lagged_stats(df_eda2, c, 0, 0.2)
     for i in stats_drop:
         lagged_stats_drop.append(i)
 
