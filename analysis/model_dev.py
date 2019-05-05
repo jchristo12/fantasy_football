@@ -7,8 +7,7 @@ from python_pkg import python_udf as udf
 import matplotlib.pyplot as plt
 import random
 import time
-import importlib
-#importlib.import_module('feature_analysis')
+import feature_analysis
 
 #sklearn imports
 from sklearn.base import TransformerMixin, BaseEstimator
@@ -192,8 +191,7 @@ class RemoveMissingData(BaseEstimator, TransformerMixin):
 # Data Setup
 # =============================================================================
 #import the data
-#df = feature_analysis.main()
-df = model_df
+df = feature_analysis.prep_for_modeling()
 #df1 = pd.read_csv('https://github.com/jchristo12/fantasy_football/blob/master/data/full_data.csv?raw=true')
 
 #create home_away categorical variable
@@ -323,7 +321,7 @@ std_scaler = StandardScaler()
 #PCA instance
 pca_object = PCA(random_state=212, n_components=comps_to_use)
 #PCA columns to use
-pca_cols = 
+pca_cols = []
 
 #one hot encoder for categorical variables
 cat_onehotencode = OneHotEncoder()
