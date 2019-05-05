@@ -74,9 +74,9 @@ def prep_for_modeling():
         x = 0
         
         #loop through all of the calculated ranks (by pos) and add to dataframe
-        for d in ranked:
+        for d in ranks:
             keys = list(pos_grid.keys())
-            data.loc[df['pos1']==keys[x], 'pos_rank'] = d.values
+            data.loc[data['pos1']==keys[x], 'pos_rank'] = d.values
             x += 1
         
         #convert ranks to categoricals
