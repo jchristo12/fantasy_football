@@ -199,8 +199,11 @@ class RemoveMissingData(BaseEstimator, TransformerMixin):
 # Data Setup
 # =============================================================================
 #import the data
+data_load_start = time.time()
 df = feature_analysis.prep_for_modeling()
 #df1 = pd.read_csv('https://github.com/jchristo12/fantasy_football/blob/master/data/full_data.csv?raw=true')
+data_load_finish = time.time()
+print('Data load time: {:.2f} seconds'.format(data_load_finish - data_load_start))
 
 #create home_away categorical variable
 df['home_away'] = np.where(df['team']==df['h'], 'home', 'away')
