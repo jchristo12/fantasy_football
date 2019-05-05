@@ -139,8 +139,9 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
     Transformer to return a subset of a DataFrame\n
     Columns entered are the columns to drop
     """
-    def __init__(self, columns):
+    def __init__(self, columns, drop=True):
         self.columns = columns
+        self.drop = drop
 
     def fit(self, X, y=None):
         return self
@@ -150,8 +151,12 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
         assert isinstance(X, pd.DataFrame)
         #error handling
         try:
-            #return the subset of the dataframe
-            return X.drop(self.columns, axis=1)
+            if self.drop == True:           
+                #return the subset of the dataframe
+                return X.drop(self.columns, axis=1)
+            else:
+                #only select the columns listed if drop==False
+                return X[self.columns]
         except KeyError:
             #return an error message if the specified columns aren't in the datframe
             cols_error = list(set(self.columns) - set(X.columns))
