@@ -121,6 +121,20 @@ def prep_for_modeling():
             output_df = add_depth_chart_rank(data, pos_grid, results)
             return output_df
 
+    def team_rank(data, stat_col, asc=True):
+        """Add team rank based on 4 game rolling sum\n
+            Returns a nx1 dataframe of the rankings"""
+        #make sure that asc argument is a boolean
+        assert isinstance(asc, bool)
+        
+        #group and perform the ranking
+        group = data.groupby(by=['seas', 'wk'], as_index=False, sort=False)
+        rank = group[stat_col].rank(method='min', ascending=asc)
+        #add a suffix to the data
+        rank.columns = [stat_col + '_rank']
+        
+        return rank
+    
 
     # =============================================================================
     # Read in the data
