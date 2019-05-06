@@ -147,7 +147,31 @@ def prep_for_modeling():
         
         return tsw_no_bye
 
-
+    def rolling_team_stats(data, team_col, window=4):
+        """Calculate the rolling aggregation of the team states by season\n
+            Returns a data frame"""
+        #store the identifiying feature
+        identifiers = data.loc[:, [team_col, 'seas', 'wk']]
+        
+        #lag by one week
+        tsw_lagged = data.groupby(by=[team_col, 'seas']).shift(1).drop('wk', axis=1)
+        #re-add identifiers
+        tsw_full = pd.concat([identifiers, tsw_lagged], axis=1)
+        
+        #remove the NaN weeks (due to lag)
+        tsw_clean = tsw_full[tsw_full.loc[:, 'pa':'tdret'].notna().all(axis=1)]
+        #tsw_clean = tsw_full[tsw_full[orig_stats].notna().all(axis=1)]
+        #store the identifying features again
+        clean_identifiers = tsw_clean.loc[:, [team_col, 'seas', 'wk']]
+        
+        #calculate the rolling agg
+        summ = tsw_clean.groupby(by=[team_col, 'seas'], sort=False).rolling(window=window, min_periods=1).sum().reset_index().loc[:, 'fuml':'trg']
+        #summ = tsw_clean.groupby(by=[team_col, 'seas'], sort=False).rolling(window=window, min_periods=1).sum().reset_index()[orig_stats]
+        
+        #add the identifiers
+        summ_clean = pd.concat([clean_identifiers.reset_index(drop=True), summ.reset_index(drop=True)], axis=1)
+        
+        return summ_clean
 
 
     # =============================================================================
