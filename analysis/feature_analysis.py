@@ -173,7 +173,6 @@ def prep_for_modeling():
         
         return rank
 
-    #combine all of the function
     def combo_team_rank(data, team_col, stat_col, window=4):
         """Combine all of the ranking functions\n
             Returns a dataframe"""
