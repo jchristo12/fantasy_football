@@ -126,7 +126,7 @@ def prep_for_modeling():
             Returns a nx1 dataframe of the rankings"""
         #make sure that asc argument is a boolean
         assert isinstance(asc, bool)
-        
+
         #group and perform the ranking
         group = data.groupby(by=['seas', 'wk'], as_index=False, sort=False)
         rank = group[stat_col].rank(method='min', ascending=asc)
@@ -135,6 +135,20 @@ def prep_for_modeling():
         
         return rank
     
+    def summ_by_team(data, team_col):
+        """Aggregate stats per player by team\n
+            Returns a dataframe"""
+        #group the data by season and wk and only return the orig stats
+        tsw = data.groupby(by=[team_col, 'seas', 'wk'], as_index=True).sum().loc[:, 'pa':'tdret']
+        #data.groupby(by=[team_col, 'seas', 'wk'], as_index=True).sum()[orig_stats]
+        
+        #remove the bye weeks
+        tsw_no_bye = tsw[tsw.notna().all(axis=1)].reset_index([team_col, 'seas', 'wk'])
+        
+        return tsw_no_bye
+
+
+
 
     # =============================================================================
     # Read in the data
