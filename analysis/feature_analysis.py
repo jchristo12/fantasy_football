@@ -364,6 +364,7 @@ full_df['udog_binary'] = full_df['team'].eq(full_df['udog'])
 full_df['def_team'] = pd.Series(np.where(full_df['team'] == full_df['h'], full_df['v'],
                                             full_df['h']), dtype='category')
 
+
 #Defensive Team Rankings
 def_team_agg = summ_by_team(full_df, 'def_team')
 def_team_roll = rolling_team_stats(def_team_agg, 'def_team', window=4)
@@ -375,14 +376,14 @@ stats_desc = ['ints', 'fuml']
 #initialize a list
 def_ranks = []
 #ascending ranks
-for c in stats_asc:
-    output = team_rank(def_team_roll, c, asc=True)
+for dc in stats_asc:
+    output = team_rank(def_team_roll, dc, asc=True)
     def_ranks.append(output)
 #descending ranks
-for c in stats_desc:
-    output = team_rank(def_team_roll, c, asc=False)
+for dc in stats_desc:
+    output = team_rank(def_team_roll, dc, asc=False)
     def_ranks.append(output)
-
+#combine all rankings into 1 dataframe
 all_def_ranks = pd.concat(def_ranks, axis=1)
 
 
@@ -392,6 +393,17 @@ off_team_roll = rolling_team_stats(off_team_agg, 'team', window=4)
 
 #loop through
 #initialize the list
+off_ranks = []
+#ascending ranks
+for oc in stats_desc:
+    output = team_rank(off_team_roll, oc, asc=True)
+    off_ranks.append(output)
+#descending ranks
+for oc in stats_asc:
+    output = team_rank(off_team_roll, oc, asc=False)
+    off_ranks.append(output)
+#combine all rankings into 1 dataframe
+all_off_ranks = pd.concat(off_ranks, axis=1)
 
 
 # =============================================================================
