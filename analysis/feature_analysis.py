@@ -120,20 +120,6 @@ def prep_for_modeling():
         else:
             output_df = add_depth_chart_rank(data, pos_grid, results)
             return output_df
-
-    def team_rank(data, stat_col, asc=True):
-        """Add team rank based on 4 game rolling sum\n
-            Returns a nx1 dataframe of the rankings"""
-        #make sure that asc argument is a boolean
-        assert isinstance(asc, bool)
-
-        #group and perform the ranking
-        group = data.groupby(by=['seas', 'wk'], as_index=False, sort=False)
-        rank = group[stat_col].rank(method='min', ascending=asc)
-        #add a suffix to the data
-        rank.columns = [stat_col + '_rank']
-        
-        return rank
     
     def summ_by_team(data, team_col):
         """Aggregate stats per player by team\n
@@ -172,6 +158,29 @@ def prep_for_modeling():
         summ_clean = pd.concat([clean_identifiers.reset_index(drop=True), summ.reset_index(drop=True)], axis=1)
         
         return summ_clean
+
+    def team_rank(data, stat_col, asc=True):
+        """Calculate each team's rank for a given week for a given stat column\n
+            Returns a nx1 data frame of the rankings"""
+        #assert that asc is boolean
+        assert isinstance(asc, bool)
+        
+        #group and perform the ranking
+        group = data.groupby(by=['seas', 'wk'], as_index=False, sort=False)
+        rank = group[stat_col].rank(method='min', ascending=asc)
+        #add a suffix to the data
+        rank.columns = [stat_col + '_rank']
+        
+        return rank
+
+    #combine all of the function
+    def combo_team_rank(data, team_col, stat_col, window=4):
+        """Combine all of the ranking functions\n
+            Returns a dataframe"""
+        df1 = summ_by_team(data, team_col)
+        df2 = rolling_team_stats(df1, team_col, window=window)
+        result = team_rank(df2, stat_col)
+        return result
 
 
     # =============================================================================
