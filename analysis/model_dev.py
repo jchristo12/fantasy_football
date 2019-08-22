@@ -53,7 +53,7 @@ def missing_data_columns(data, threshold=0.25):
     missing_cols = list(missing_data[missing_data > threshold].sort_values(ascending=False).index)
     #drop the columns that have missing values above threshold
     #result = data.drop(missing_cols, axis=1, inplace=False)
-    
+
     return missing_cols
 
 def remove_missing_data(data, threshold=0.25):
@@ -62,7 +62,7 @@ def remove_missing_data(data, threshold=0.25):
     cols = missing_data_columns(data, threshold=threshold)
     #drop the columns
     result = data.drop(cols, axis=1)
-    
+
     return result
 
 def exclude_response(data, response_feat='f_pts'):
@@ -126,7 +126,7 @@ def find_n_comps_to_use(data, threshold, rand_state, scaler=None):
         df = StandardScaler().fit_transform(data)
     else:
         df = scaler.fit_transform(data)
-    
+
     #create the PCA object
     pca = PCA(random_state=rand_state)
     #fit the PCA instance
@@ -157,7 +157,7 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
         assert isinstance(X, pd.DataFrame)
         #error handling
         try:
-            if self.drop == True:           
+            if self.drop == True:
                 #return the subset of the dataframe
                 return X.drop(self.columns, axis=1)
             else:
@@ -204,6 +204,7 @@ class RemoveMissingData(BaseEstimator, TransformerMixin):
 # =============================================================================
 # Data Setup
 # =============================================================================
+#region
 #import the data
 data_load_start = time.time()
 df = feature_analysis.prep_for_modeling()
@@ -223,7 +224,7 @@ df['home_away'] = np.where(df['team']==df['h'], 'home', 'away')
 #remove rows that have NaN for the shifted variables
 df_clean = df[~df.loc[:,'seas_pa':'seas_tdret'].isna().all(axis=1)]
 
-#store positions we are concerned about; will use these to filter out 
+#store positions we are concerned about; will use these to filter out
 pos_of_interest = ['QB', 'RB', 'WR', 'TE']
 #filter out positions we don't care about
 df_clean2 = df_clean[df_clean['pos1'].isin(pos_of_interest)]
@@ -259,10 +260,12 @@ train_wr, test_wr = train_test_split(df_wr10, train_size=0.8, test_size=0.2, shu
 train_wr = train_wr.reset_index(drop=True)
 test_wr = test_wr.reset_index(drop=True)
 
+#endregion
 
 # =============================================================================
 # EDA
 # =============================================================================
+#region
 #create a dataframe with all weeks of WR to do EDA
 #only want to look at training data (the same training data that will be used later for model building)
 all_train_df = []
@@ -313,10 +316,12 @@ sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
 #PCA
 
 
+#endregion
 
 # =============================================================================
 # Setup Pipelines
 # =============================================================================
+#region
 #Store columns to drop due to too much missing data
 miss_cols = missing_data_columns(train_wr, threshold=0.25)
 
@@ -348,7 +353,7 @@ non_pca_cols = list(train_wr.select_dtypes(include=np.number).columns)
 pca_pipe = Pipeline(steps=[('standardize', std_scaler),
                             ('pca_fit', pca_object)])
 #pca pipeline for standardized data
-#pca_std_pipeline = 
+#pca_std_pipeline =
 
 #one hot encoder for categorical variables
 cat_onehotencode = OneHotEncoder()
@@ -389,10 +394,12 @@ preprocess_pipe_std = Pipeline(steps=[('subset_data', ColumnSelector(columns=all
                                         ('feature_work', FeatureUnion(transformer_list=[('numeric_data', numeric_pipe_std),
                                                                                         ('categorical_data', cat_pipe)],))])
 
+#endregion
 
 # =============================================================================
 # Modeling
 # =============================================================================
+#region
 #Linear Regression
 
 
@@ -459,6 +466,7 @@ svr_model = perform_modeling(svr_pipe, svr_param_grid, cv=10, score=mse, train=x
 #store the svr_rmse
 svr_rmse_cv = np.sqrt(svr_model.best_score_)
 
+#endregion
 
 # =============================================================================
 # Testing Grounds
