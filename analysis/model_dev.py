@@ -311,6 +311,7 @@ sb.scatterplot(x='recent_recy', y='f_pts', data=df_eda2)
 #college conference and exp
 sb.scatterplot(x='exp', y='f_pts', data=df_eda2)
 sb.boxplot(x='gen_dv', y='f_pts', data=df_eda2)
+df_eda2.groupby(by=['gen_dv']).agg({'f_pts': summ_stats})
 
 
 #PCA
