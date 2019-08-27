@@ -9,11 +9,5 @@ left join PLAYER
 	on OFFENSE.player = PLAYER.player
 where GAME.wk <= 16
 	and
-	(PLAYER.pos1 = "QB" or
-	PLAYER.pos1 = "RB" or 
-	PLAYER.pos1 = "WR" or 
-	PLAYER.pos1 = "TE" or 
-	PLAYER.pos1 = "K"
-	)
--- limit 10
+	PLAYER.pos1 in ("QB", "RB", "WR", "TE", "K")
 ;
