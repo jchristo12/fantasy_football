@@ -1,0 +1,20 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pandas = "*"
+requests = "*"
+seaborn = "*"
+bs4 = "*"
+sqlalchemy = "*"
+sklearn = "*"
+dash = "*"
+pylint = "*"
+jupyterlab = "*"
+
+[packages]
+
+[requires]
+python_version = "3.7"
